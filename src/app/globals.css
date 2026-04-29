@@ -22,16 +22,22 @@
 }
 
 /* Surface the palette as Tailwind v4 theme tokens so utilities like
- * `bg-cream`, `text-charcoal`, etc. resolve to the variables above. */
+ * `bg-cream`, `text-charcoal`, etc. work in component classes.
+ *
+ * Use LITERAL values here, not `var(...)` self-references. Writing
+ * `--color-cream: var(--color-cream)` inside `@theme inline` produces
+ * a circular custom-property declaration that CSS treats as invalid,
+ * which silently breaks `var(--color-cream)` resolution at runtime
+ * and lands inline backgrounds on `transparent`. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #f5f1ea;
+  --color-foreground: #2e2e2c;
 
-  --color-sage: var(--color-sage);
-  --color-sage-dark: var(--color-sage-dark);
-  --color-cream: var(--color-cream);
-  --color-gold: var(--color-gold);
-  --color-charcoal: var(--color-charcoal);
+  --color-sage: #a7b5a0;
+  --color-sage-dark: #6f7f69;
+  --color-cream: #f5f1ea;
+  --color-gold: #b8975a;
+  --color-charcoal: #2e2e2c;
 
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);

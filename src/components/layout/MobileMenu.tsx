@@ -72,33 +72,35 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
           aria-labelledby={titleId}
           className="fixed inset-0 z-[60] md:hidden"
         >
-          {/* Backdrop — heavily darkened + blurred so the underlying page
-              reads as "behind" rather than competing with the drawer copy. */}
+          {/* Backdrop — heavily darkened so the underlying page reads as
+              "behind" rather than competing with the drawer copy.
+              Literal rgba so it can never fall through to transparent if
+              a custom property fails to resolve. */}
           <button
             type="button"
             aria-label="Close navigation"
             onClick={close}
             className="absolute inset-0 size-full"
             style={{
-              backgroundColor:
-                "color-mix(in srgb, var(--color-charcoal) 82%, transparent)",
+              backgroundColor: "rgba(46, 46, 44, 0.85)",
               backdropFilter: "blur(6px)",
               WebkitBackdropFilter: "blur(6px)",
               animation: "hero-fade-in 0.2s ease-out both",
             }}
           />
 
-          {/* Drawer panel — explicitly stacked above the backdrop sibling
-              and given a solid cream fill so nothing reads through it. */}
+          {/* Drawer panel — solid cream fill (literal hex), explicit
+              opacity, and an opaque inset overlay as belt-and-braces so
+              nothing from the page can read through. */}
           <aside
             className="absolute right-0 top-0 z-10 flex h-full w-[82vw] max-w-sm flex-col"
             style={{
-              backgroundColor: "var(--color-cream)",
-              borderLeft:
-                "1px solid color-mix(in srgb, var(--color-sage) 60%, transparent)",
-              boxShadow:
-                "-30px 0 80px -20px color-mix(in srgb, var(--color-charcoal) 75%, transparent)",
-              animation: "drawer-slide-in 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both",
+              backgroundColor: "#f5f1ea",
+              opacity: 1,
+              borderLeft: "1px solid rgba(167, 181, 160, 0.6)",
+              boxShadow: "-30px 0 80px -20px rgba(46, 46, 44, 0.75)",
+              animation:
+                "drawer-slide-in 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both",
             }}
           >
             <div
