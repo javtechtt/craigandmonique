@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------
+ * Sage Luxury palette
+ *
+ * Mirrors the values exported from `src/themes/sageLuxury.ts`. Update
+ * both files together so server-rendered styles stay in sync with the
+ * TS theme object. When this template moves to Sanity, the palette will
+ * likely come back as `theme.colors` in the document — at that point,
+ * inject it via inline styles on <html> and remove these static custom
+ * properties.
+ * --------------------------------------------------------------------- */
+:root {
+  --color-sage: #a7b5a0;
+  --color-sage-dark: #6f7f69;
+  --color-cream: #f5f1ea;
+  --color-gold: #b8975a;
+  --color-charcoal: #2e2e2c;
+
+  --background: var(--color-cream);
+  --foreground: var(--color-charcoal);
+}
+
+/* Surface the palette as Tailwind v4 theme tokens so utilities like
+ * `bg-cream`, `text-charcoal`, etc. resolve to the variables above. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-sage: var(--color-sage);
+  --color-sage-dark: var(--color-sage-dark);
+  --color-cream: var(--color-cream);
+  --color-gold: var(--color-gold);
+  --color-charcoal: var(--color-charcoal);
+
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-serif {
+  font-family: var(--font-heading), "Cormorant Garamond", "Playfair Display", Georgia,
+    serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--color-sage);
+  color: var(--color-cream);
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* -----------------------------------------------------------------------
+ * Editorial motion
+ *
+ * Tailwind v4 supports arbitrary `animate-[...]` values, so component
+ * styles reference these keyframes directly. Keep durations slow and
+ * easings soft — the brief is "premium, minimal, romantic, editorial".
+ * --------------------------------------------------------------------- */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes hero-shimmer {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
