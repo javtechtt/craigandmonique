@@ -108,10 +108,12 @@ export function CountdownSection({ config }: CountdownSectionProps) {
             Counting the moments
           </span>
           <h2
-            className="font-serif text-3xl sm:text-4xl md:text-5xl"
+            className="font-serif text-3xl leading-tight sm:text-4xl md:text-5xl"
             style={{ color: "var(--color-charcoal)" }}
           >
-            Until {couple.displayName} say I do
+            Until we say
+            <br />
+            <em className="italic">I do</em>
           </h2>
           {formattedDate ? (
             <p

@@ -28,6 +28,10 @@ export function HeroSection({ config }: HeroSectionProps) {
     hero.secondaryCtaLabel && hero.secondaryCtaHref
       ? { label: hero.secondaryCtaLabel, href: hero.secondaryCtaHref }
       : null;
+  const tertiaryCta =
+    hero.tertiaryCtaLabel && hero.tertiaryCtaHref
+      ? { label: hero.tertiaryCtaLabel, href: hero.tertiaryCtaHref }
+      : null;
 
   return (
     <section
@@ -115,8 +119,8 @@ export function HeroSection({ config }: HeroSectionProps) {
             </p>
           ) : null}
 
-          {(primaryCta || secondaryCta) && (
-            <div className="mt-2 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center lg:justify-start">
+          {(primaryCta || secondaryCta || tertiaryCta) && (
+            <div className="mt-2 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-start">
               {secondaryCta ? (
                 <Button
                   href={secondaryCta.href}
@@ -127,12 +131,22 @@ export function HeroSection({ config }: HeroSectionProps) {
                   {secondaryCta.label}
                 </Button>
               ) : null}
+              {tertiaryCta ? (
+                <Button
+                  href={tertiaryCta.href}
+                  size="md"
+                  variant="secondary"
+                  className="sm:order-2"
+                >
+                  {tertiaryCta.label}
+                </Button>
+              ) : null}
               {primaryCta ? (
                 <Button
                   href={primaryCta.href}
                   size="md"
                   variant="primary"
-                  className="sm:order-2"
+                  className="sm:order-3"
                 >
                   {primaryCta.label}
                 </Button>

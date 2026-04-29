@@ -80,6 +80,9 @@ export interface WeddingHero {
   /** Optional second CTA shown beside the primary action. */
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
+  /** Optional third CTA, e.g. a registry shortcut. */
+  tertiaryCtaLabel?: string;
+  tertiaryCtaHref?: string;
   backgroundImage?: WeddingImage;
 }
 

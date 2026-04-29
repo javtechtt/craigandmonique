@@ -59,6 +59,8 @@ export const weddingConfig: WeddingConfig = {
     ctaHref: "#rsvp",
     secondaryCtaLabel: "View Details",
     secondaryCtaHref: "#events",
+    tertiaryCtaLabel: "Gift Registry",
+    tertiaryCtaHref: "#registry",
     backgroundImage: {
       src: "/images/couple/hero.jpg",
       alt: "Craig and Monique on a balcony surrounded by greenery",
@@ -70,6 +72,7 @@ export const weddingConfig: WeddingConfig = {
   navigation: [
     { label: "Events", href: "#events" },
     { label: "Gallery", href: "#gallery" },
+    { label: "Registry", href: "#registry" },
     { label: "RSVP", href: "#rsvp" },
   ],
 
