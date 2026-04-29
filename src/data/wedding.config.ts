@@ -25,7 +25,6 @@ export const weddingConfig: WeddingConfig = {
 
   couple: {
     displayName: "Craig & Monique",
-    hashtag: "#CraigAndMonique",
     partnerOne: {
       firstName: "Craig",
       lastName: "Placeholder",
@@ -70,7 +69,6 @@ export const weddingConfig: WeddingConfig = {
 
   navigation: [
     { label: "Events", href: "#events" },
-    { label: "Schedule", href: "#schedule" },
     { label: "Gallery", href: "#gallery" },
     { label: "RSVP", href: "#rsvp" },
   ],
@@ -79,7 +77,7 @@ export const weddingConfig: WeddingConfig = {
     hero: true,
     story: true,
     events: true,
-    schedule: true,
+    schedule: false,
     gallery: true,
     party: true,
     rsvp: true,
@@ -341,8 +339,7 @@ export const weddingConfig: WeddingConfig = {
   ],
 
   footer: {
-    tagline: "With love, Craig & Monique",
-    credit: "Site by Javtech",
+    tagline: "With love",
     socials: [],
   },
 

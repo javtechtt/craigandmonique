@@ -2,7 +2,6 @@ import Image from "next/image";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { formatWeddingDate } from "@/lib/formatDate";
 
 interface HeroSectionProps {
   config: WeddingConfig;
@@ -19,8 +18,7 @@ interface HeroSectionProps {
  * shape arrives from the fetcher — this component does not change.
  */
 export function HeroSection({ config }: HeroSectionProps) {
-  const { hero, couple, weddingDate, timezone } = config;
-  const formattedDate = formatWeddingDate(weddingDate, { timezone });
+  const { hero, couple } = config;
 
   const primaryCta =
     hero.ctaLabel && hero.ctaHref
@@ -116,31 +114,6 @@ export function HeroSection({ config }: HeroSectionProps) {
               {hero.subheading}
             </p>
           ) : null}
-
-          <div
-            className="mx-auto flex flex-col items-center gap-2 lg:mx-0 lg:items-start"
-            style={{ color: "var(--color-charcoal)" }}
-          >
-            <span className="text-[0.7rem] uppercase tracking-[0.4em] opacity-70">
-              The wedding of
-            </span>
-            <span className="font-serif text-2xl tracking-wide">
-              {couple.partnerOne.preferredName ?? couple.partnerOne.firstName}
-              <span
-                className="mx-3 align-middle text-base"
-                style={{ color: "var(--color-gold)" }}
-              >
-                &
-              </span>
-              {couple.partnerTwo.preferredName ?? couple.partnerTwo.firstName}
-            </span>
-            <span
-              className="text-xs uppercase tracking-[0.32em]"
-              style={{ color: "var(--color-sage-dark)" }}
-            >
-              {formattedDate}
-            </span>
-          </div>
 
           {(primaryCta || secondaryCta) && (
             <div className="mt-2 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center lg:justify-start">
