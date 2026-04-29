@@ -26,7 +26,9 @@ export function WeddingDetailsSection({ config }: WeddingDetailsSectionProps) {
   return (
     <section
       id="events"
-      className="relative isolate overflow-hidden py-24 sm:py-28"
+      // `z-10` keeps the AddToCalendar dropdown above the next section's
+      // stacking context if it ever extends past this section's bounds.
+      className="relative isolate z-10 py-24 sm:py-28"
       style={{
         backgroundColor:
           "color-mix(in srgb, var(--color-sage) 18%, var(--color-cream))",
@@ -82,7 +84,7 @@ function DetailsCard({
 
   return (
     <article
-      className="group relative flex h-full flex-col gap-6 overflow-hidden rounded-3xl px-7 py-10 sm:px-10 sm:py-12"
+      className="group relative flex h-full flex-col gap-6 rounded-3xl px-7 py-10 sm:px-10 sm:py-12"
       style={{
         backgroundColor: "var(--color-cream)",
         border:
@@ -92,12 +94,17 @@ function DetailsCard({
         animation: `hero-fade-up 0.9s ${0.05 * index}s ease-out both`,
       }}
     >
-      {/* Soft corner flourish */}
-      <span
+      {/* Decorations clip wrapper — keeps the blurred flourish inside the
+          card edges while letting the AddToCalendar dropdown escape. */}
+      <div
         aria-hidden
-        className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full blur-3xl opacity-40"
-        style={{ backgroundColor: "var(--color-sage)" }}
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+      >
+        <span
+          className="absolute -right-20 -top-20 size-56 rounded-full blur-3xl opacity-40"
+          style={{ backgroundColor: "var(--color-sage)" }}
+        />
+      </div>
 
       <header className="relative flex flex-col items-center gap-3 text-center">
         <span

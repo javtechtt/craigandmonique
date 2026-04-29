@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
-import { formatWeddingDate } from "@/lib/formatDate";
+import { formatWeddingDate, getWeddingMoment } from "@/lib/formatDate";
 
 interface CountdownSectionProps {
   config: WeddingConfig;
@@ -30,12 +30,6 @@ function diff(target: number, now: number): TimeLeft {
   };
 }
 
-function isValidWeddingDate(iso: string | undefined): iso is string {
-  if (!iso) return false;
-  const time = Date.parse(iso);
-  return Number.isFinite(time);
-}
-
 const UNITS: Array<{ key: keyof TimeLeft; label: string }> = [
   { key: "days", label: "Days" },
   { key: "hours", label: "Hours" },
@@ -52,8 +46,11 @@ const UNITS: Array<{ key: keyof TimeLeft; label: string }> = [
  */
 export function CountdownSection({ config }: CountdownSectionProps) {
   const { weddingDate, timezone, couple } = config;
-  const valid = isValidWeddingDate(weddingDate);
-  const target = valid ? Date.parse(weddingDate) : null;
+  // Resolve the wedding ISO into a true UTC moment using the venue
+  // timezone; floating ISO strings would otherwise drift on machines
+  // not in that zone. `null` means missing or unparseable input.
+  const target = getWeddingMoment(weddingDate, timezone);
+  const valid = target !== null;
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
     target !== null ? diff(target, Date.now()) : ZERO,
