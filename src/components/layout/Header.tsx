@@ -25,10 +25,18 @@ export function Header({ config }: HeaderProps) {
       <Container size="xl" className="flex items-center justify-between py-5">
         <Link
           href="/"
-          className="font-serif text-lg tracking-[0.2em] sm:text-xl"
+          aria-label={`${couple.displayName} — home`}
+          className="font-serif text-2xl tracking-[0.05em] sm:text-3xl"
           style={{ color: "var(--color-charcoal)" }}
         >
-          {couple.displayName}
+          <span>{couple.partnerOne.firstName.charAt(0)}</span>
+          <span
+            className="mx-1.5 align-middle"
+            style={{ color: "var(--color-gold)" }}
+          >
+            &
+          </span>
+          <span>{couple.partnerTwo.firstName.charAt(0)}</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
