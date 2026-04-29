@@ -19,10 +19,25 @@ const fontBody = Inter({
 });
 
 /* Metadata is sourced from the wedding config so each couple's site renders
- * the right title/description without touching components. */
+ * the right title/description without touching components.
+ *
+ * The OG and Twitter image references are auto-injected by Next.js from
+ * the `opengraph-image.tsx` / `twitter-image.tsx` files in this folder —
+ * we only set the textual fields here. */
 export const metadata: Metadata = {
   title: weddingConfig.seo.title,
   description: weddingConfig.seo.description,
+  openGraph: {
+    title: weddingConfig.seo.title,
+    description: weddingConfig.seo.description,
+    type: "website",
+    siteName: weddingConfig.couple.displayName,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: weddingConfig.seo.title,
+    description: weddingConfig.seo.description,
+  },
 };
 
 export const viewport: Viewport = {
