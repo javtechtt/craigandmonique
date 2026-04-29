@@ -55,21 +55,25 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
         className="flex size-10 items-center justify-center rounded-full md:hidden"
         style={{
           color: "var(--color-charcoal)",
-          backgroundColor:
-            "color-mix(in srgb, var(--color-cream) 50%, transparent)",
+          backgroundColor: "var(--color-cream)",
+          border:
+            "1px solid color-mix(in srgb, var(--color-sage) 55%, transparent)",
         }}
       >
         <HamburgerIcon />
       </button>
 
       {open ? (
+        // z-[60] keeps the drawer above the sticky header (z-40) and any
+        // other sticky elements that may exist further up the tree.
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="fixed inset-0 z-50 md:hidden"
+          className="fixed inset-0 z-[60] md:hidden"
         >
-          {/* Backdrop */}
+          {/* Backdrop — heavily darkened + blurred so the underlying page
+              reads as "behind" rather than competing with the drawer copy. */}
           <button
             type="button"
             aria-label="Close navigation"
@@ -77,20 +81,23 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
             className="absolute inset-0 size-full"
             style={{
               backgroundColor:
-                "color-mix(in srgb, var(--color-charcoal) 55%, transparent)",
+                "color-mix(in srgb, var(--color-charcoal) 82%, transparent)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               animation: "hero-fade-in 0.2s ease-out both",
             }}
           />
 
-          {/* Drawer panel */}
+          {/* Drawer panel — explicitly stacked above the backdrop sibling
+              and given a solid cream fill so nothing reads through it. */}
           <aside
-            className="absolute right-0 top-0 flex h-full w-[82vw] max-w-sm flex-col"
+            className="absolute right-0 top-0 z-10 flex h-full w-[82vw] max-w-sm flex-col"
             style={{
               backgroundColor: "var(--color-cream)",
               borderLeft:
-                "1px solid color-mix(in srgb, var(--color-sage) 50%, transparent)",
+                "1px solid color-mix(in srgb, var(--color-sage) 60%, transparent)",
               boxShadow:
-                "-30px 0 60px -28px color-mix(in srgb, var(--color-charcoal) 60%, transparent)",
+                "-30px 0 80px -20px color-mix(in srgb, var(--color-charcoal) 75%, transparent)",
               animation: "drawer-slide-in 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both",
             }}
           >
