@@ -150,7 +150,7 @@ export const weddingConfig: WeddingConfig = {
       {
         id: "welcome",
         title: "Welcome & Seating",
-        description: "Arrive, settle in and find your seat.",
+        description: "Arrive, settle in and find your seat",
         time: "2026-08-02T13:30:00",
       },
       {
@@ -162,7 +162,7 @@ export const weddingConfig: WeddingConfig = {
       {
         id: "photographs",
         title: "Photography Session",
-        description: "Family and bridal party portraits.",
+        description: "Family and bridal party portraits",
         time: "2026-08-02T15:30:00",
       },
       {

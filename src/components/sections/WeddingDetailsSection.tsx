@@ -2,6 +2,7 @@ import type { WeddingConfig, WeddingEvent } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { AddToCalendarButton } from "@/components/ui/AddToCalendarButton";
 import { formatTime, formatShortDate } from "@/lib/formatDate";
 
 interface WeddingDetailsSectionProps {
@@ -45,7 +46,12 @@ export function WeddingDetailsSection({ config }: WeddingDetailsSectionProps) {
         >
           {events.map((event, idx) => (
             <li key={event.id}>
-              <DetailsCard event={event} timezone={timezone} index={idx} />
+              <DetailsCard
+                event={event}
+                timezone={timezone}
+                weddingSlug={config.slug}
+                index={idx}
+              />
             </li>
           ))}
         </ul>
@@ -57,10 +63,16 @@ export function WeddingDetailsSection({ config }: WeddingDetailsSectionProps) {
 interface DetailsCardProps {
   event: WeddingEvent;
   timezone: string;
+  weddingSlug: string;
   index: number;
 }
 
-function DetailsCard({ event, timezone, index }: DetailsCardProps) {
+function DetailsCard({
+  event,
+  timezone,
+  weddingSlug,
+  index,
+}: DetailsCardProps) {
   const startTime = formatTime(event.startsAt, { timezone });
   const endTime = event.endsAt
     ? formatTime(event.endsAt, { timezone })
@@ -150,7 +162,7 @@ function DetailsCard({ event, timezone, index }: DetailsCardProps) {
         ) : null}
       </dl>
 
-      <div className="relative mt-auto flex flex-col gap-3 pt-4 sm:flex-row sm:justify-center">
+      <div className="relative mt-auto flex flex-col items-stretch gap-3 pt-4 sm:flex-row sm:items-center sm:justify-center">
         <Button
           href={directionsHref}
           variant="secondary"
@@ -160,11 +172,11 @@ function DetailsCard({ event, timezone, index }: DetailsCardProps) {
         >
           Directions
         </Button>
-        {/* TODO: Add to Calendar — wire up an ICS download or Google Calendar
-            deep link in a future phase. Left as a placeholder for now. */}
-        <Button variant="primary" size="sm">
-          Add to Calendar
-        </Button>
+        <AddToCalendarButton
+          event={event}
+          timezone={timezone}
+          weddingSlug={weddingSlug}
+        />
       </div>
     </article>
   );
