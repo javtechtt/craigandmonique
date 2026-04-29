@@ -169,7 +169,7 @@ function DetailsCard({
         ) : null}
       </dl>
 
-      <div className="relative mt-auto flex flex-col items-stretch gap-3 pt-4 sm:flex-row sm:items-center sm:justify-center">
+      <div className="relative mt-auto flex flex-col items-center gap-3 pt-4 sm:flex-row sm:justify-center">
         <Button
           href={directionsHref}
           variant="secondary"
