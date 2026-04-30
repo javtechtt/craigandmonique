@@ -1,24 +1,25 @@
-import Image from "next/image";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { formatWeddingDate } from "@/lib/formatDate";
 
 interface HeroSectionProps {
   config: WeddingConfig;
 }
 
 /**
- * Hero — full-bleed editorial layout.
+ * Hero — centered editorial save-the-date card.
  *
- * Pulls names, date, hero image, and CTA copy from `WeddingConfig`. The
- * decorative blurred shapes and thin gold rule give the soft luxury feel
- * referenced in the design brief without leaning on extra dependencies.
+ * Pulls names, date, and CTA copy from `WeddingConfig`. The decorative
+ * blurred shapes and botanical sprig keep the soft luxury feel without
+ * leaning on extra dependencies.
  *
  * Sanity migration: when content moves to a CMS, the same `WeddingConfig`
  * shape arrives from the fetcher — this component does not change.
  */
 export function HeroSection({ config }: HeroSectionProps) {
-  const { hero, couple } = config;
+  const { hero, weddingDate, timezone } = config;
+  const formattedDate = formatWeddingDate(weddingDate, { timezone });
 
   const primaryCta =
     hero.ctaLabel && hero.ctaHref
@@ -36,7 +37,7 @@ export function HeroSection({ config }: HeroSectionProps) {
   return (
     <section
       className="relative isolate overflow-hidden"
-      style={{ backgroundColor: "var(--color-cream)" }}
+      style={{ backgroundColor: "#f5f1ea" }}
     >
       {/* Decorative background shapes — pure CSS, no extra layout cost. */}
       <div
@@ -46,14 +47,14 @@ export function HeroSection({ config }: HeroSectionProps) {
         <div
           className="absolute -top-40 -left-32 size-[28rem] rounded-full blur-3xl opacity-40"
           style={{
-            backgroundColor: "var(--color-sage)",
+            backgroundColor: "#a7b5a0",
             animation: "hero-float 14s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -bottom-48 -right-24 size-[34rem] rounded-full blur-3xl opacity-35"
           style={{
-            backgroundColor: "var(--color-sage-dark)",
+            backgroundColor: "#6f7f69",
             animation: "hero-float 18s ease-in-out infinite",
             animationDelay: "1.5s",
           }}
@@ -61,7 +62,7 @@ export function HeroSection({ config }: HeroSectionProps) {
         <div
           className="absolute top-1/3 right-1/4 hidden size-40 rounded-full blur-2xl opacity-30 md:block"
           style={{
-            backgroundColor: "var(--color-gold)",
+            backgroundColor: "#b8975a",
             animation: "hero-shimmer 8s ease-in-out infinite",
           }}
         />
@@ -69,151 +70,149 @@ export function HeroSection({ config }: HeroSectionProps) {
 
       <Container
         size="xl"
-        className="relative grid gap-14 py-20 sm:py-24 lg:grid-cols-12 lg:items-center lg:gap-16 lg:py-32"
+        className="relative flex flex-col items-center gap-8 py-24 text-center sm:gap-10 sm:py-28 lg:py-36"
       >
-        {/* Copy column */}
         <div
-          className="flex flex-col gap-8 text-center lg:col-span-6 lg:text-left"
+          className="flex flex-col items-center gap-8 sm:gap-10"
           style={{ animation: "hero-fade-up 1.1s ease-out both" }}
         >
           {hero.eyebrow ? (
-            <div className="flex items-center justify-center gap-4 lg:justify-start">
-              <span
-                aria-hidden
-                className="hidden h-px w-10 lg:block"
-                style={{
-                  backgroundColor: "var(--color-gold)",
-                  opacity: 0.7,
-                }}
-              />
-              <span
-                className="text-[0.7rem] font-medium uppercase tracking-[0.5em]"
-                style={{ color: "var(--color-gold)" }}
-              >
-                {hero.eyebrow}
-              </span>
-              <span
-                aria-hidden
-                className="hidden h-px w-10 lg:block"
-                style={{
-                  backgroundColor: "var(--color-gold)",
-                  opacity: 0.7,
-                }}
-              />
-            </div>
+            <span
+              className="text-[0.7rem] font-medium uppercase tracking-[0.5em] sm:text-xs"
+              style={{ color: "#b8975a" }}
+            >
+              {hero.eyebrow}
+            </span>
           ) : null}
 
+          <LeafSprig />
+
           <h1
-            className="font-serif text-[3.25rem] leading-[0.95] sm:text-7xl lg:text-[6.5rem]"
-            style={{ color: "var(--color-charcoal)" }}
+            className="font-serif leading-[0.95] text-[3.25rem] sm:text-7xl lg:text-[7rem]"
+            style={{ color: "#2e2e2c" }}
           >
             {hero.heading}
           </h1>
 
-          {hero.subheading ? (
-            <p
-              className="mx-auto max-w-md text-base leading-relaxed sm:text-lg lg:mx-0"
-              style={{ color: "var(--color-sage-dark)" }}
-            >
-              {hero.subheading}
-            </p>
-          ) : null}
+          <DotDivider />
 
-          {(primaryCta || secondaryCta || tertiaryCta) && (
-            <div className="mt-2 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-start">
-              {secondaryCta ? (
-                <Button
-                  href={secondaryCta.href}
-                  size="md"
-                  variant="secondary"
-                  className="sm:order-1"
-                >
-                  {secondaryCta.label}
-                </Button>
-              ) : null}
-              {tertiaryCta ? (
-                <Button
-                  href={tertiaryCta.href}
-                  size="md"
-                  variant="secondary"
-                  className="sm:order-2"
-                >
-                  {tertiaryCta.label}
-                </Button>
-              ) : null}
-              {primaryCta ? (
-                <Button
-                  href={primaryCta.href}
-                  size="md"
-                  variant="primary"
-                  className="sm:order-3"
-                >
-                  {primaryCta.label}
-                </Button>
-              ) : null}
-            </div>
-          )}
+          <p
+            className="text-sm font-medium uppercase tracking-[0.4em] sm:text-base sm:tracking-[0.5em]"
+            style={{ color: "#6f7f69" }}
+          >
+            {formattedDate}
+          </p>
         </div>
 
-        {/* Image column */}
-        {hero.backgroundImage ? (
+        {(primaryCta || secondaryCta || tertiaryCta) && (
           <div
-            className="relative lg:col-span-6"
-            style={{ animation: "hero-fade-in 1.4s ease-out both" }}
+            className="mt-4 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+            style={{ animation: "hero-fade-up 1.1s 0.2s ease-out both" }}
           >
-            <div className="relative mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-[2rem] sm:max-w-lg lg:max-w-none">
-              <Image
-                src={hero.backgroundImage.src}
-                alt={hero.backgroundImage.alt}
-                fill
-                priority
-                sizes="(min-width: 1024px) 50vw, (min-width: 640px) 80vw, 100vw"
-                className="object-cover"
-              />
-              {/* Soft cream wash to keep the image editorial and on-brand. */}
-              <div
-                aria-hidden
-                className="absolute inset-0 mix-blend-soft-light"
-                style={{
-                  background:
-                    "linear-gradient(140deg, color-mix(in srgb, var(--color-cream) 30%, transparent), transparent 55%)",
-                }}
-              />
-            </div>
-
-            {/* Floating monogram card */}
-            <div
-              className="absolute -bottom-6 left-6 hidden items-center gap-3 rounded-full px-5 py-3 backdrop-blur-md sm:flex lg:-bottom-8 lg:left-10"
-              style={{
-                backgroundColor:
-                  "color-mix(in srgb, var(--color-cream) 85%, transparent)",
-                border:
-                  "1px solid color-mix(in srgb, var(--color-gold) 50%, transparent)",
-                boxShadow:
-                  "0 20px 40px -24px color-mix(in srgb, var(--color-charcoal) 30%, transparent)",
-              }}
-            >
-              <span
-                className="font-serif text-2xl"
-                style={{ color: "var(--color-charcoal)" }}
+            {secondaryCta ? (
+              <Button
+                href={secondaryCta.href}
+                size="md"
+                variant="secondary"
+                className="sm:order-1"
               >
-                {couple.partnerOne.firstName.charAt(0)}
-                <span className="mx-1" style={{ color: "var(--color-gold)" }}>
-                  &
-                </span>
-                {couple.partnerTwo.firstName.charAt(0)}
-              </span>
-              <span
-                className="text-[0.65rem] uppercase tracking-[0.32em]"
-                style={{ color: "var(--color-sage-dark)" }}
+                {secondaryCta.label}
+              </Button>
+            ) : null}
+            {tertiaryCta ? (
+              <Button
+                href={tertiaryCta.href}
+                size="md"
+                variant="secondary"
+                className="sm:order-2"
               >
-                Forever
-              </span>
-            </div>
+                {tertiaryCta.label}
+              </Button>
+            ) : null}
+            {primaryCta ? (
+              <Button
+                href={primaryCta.href}
+                size="md"
+                variant="primary"
+                className="sm:order-3"
+              >
+                {primaryCta.label}
+              </Button>
+            ) : null}
           </div>
-        ) : null}
+        )}
       </Container>
     </section>
+  );
+}
+
+/**
+ * Botanical sprig drawn as a curved branch with paired leaves and a small
+ * dot to the side. Pure SVG, scales with the surrounding text. Sage
+ * stroke matches the wedding palette.
+ */
+function LeafSprig() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 160 36"
+      width="160"
+      height="36"
+      className="opacity-90"
+    >
+      <g
+        stroke="#6f7f69"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      >
+        {/* Tiny dot to the left of the branch */}
+        <circle cx="6" cy="18" r="1.6" fill="#6f7f69" />
+
+        {/* Main stem — gentle S-curve */}
+        <path d="M16 18 C 40 8, 70 6, 92 10 C 110 13, 132 14, 154 18" />
+
+        {/* Upper-side leaves */}
+        <path d="M30 14 Q 33 6, 42 8 Q 38 14, 30 14 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M52 10 Q 56 2, 65 5 Q 60 12, 52 10 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M76 9 Q 80 1, 90 4 Q 84 11, 76 9 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M100 12 Q 104 4, 114 7 Q 108 14, 100 12 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M124 14 Q 130 6, 140 10 Q 132 17, 124 14 Z" fill="#6f7f69" fillOpacity="0.18" />
+
+        {/* Lower-side leaves */}
+        <path d="M40 22 Q 44 30, 51 27 Q 47 21, 40 22 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M64 22 Q 68 30, 75 27 Q 71 21, 64 22 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M88 22 Q 92 30, 100 27 Q 95 21, 88 22 Z" fill="#6f7f69" fillOpacity="0.18" />
+        <path d="M112 23 Q 117 30, 124 27 Q 119 22, 112 23 Z" fill="#6f7f69" fillOpacity="0.18" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Thin rule + gold dot + thin rule, set on a single row. Used as a
+ * decorative separator between the names and the date.
+ */
+function DotDivider() {
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        aria-hidden
+        className="h-px w-16 sm:w-24"
+        style={{ backgroundColor: "#6f7f69", opacity: 0.4 }}
+      />
+      <span
+        aria-hidden
+        className="size-1.5 rounded-full"
+        style={{ backgroundColor: "#b8975a" }}
+      />
+      <span
+        aria-hidden
+        className="h-px w-16 sm:w-24"
+        style={{ backgroundColor: "#6f7f69", opacity: 0.4 }}
+      />
+    </div>
   );
 }
 
