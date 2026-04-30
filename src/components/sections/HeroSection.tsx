@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -70,77 +71,110 @@ export function HeroSection({ config }: HeroSectionProps) {
 
       <Container
         size="xl"
-        className="relative flex flex-col items-center gap-8 py-24 text-center sm:gap-10 sm:py-28 lg:py-36"
+        className="relative grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-2 lg:gap-16 lg:py-36"
       >
+        {/* Copy column — stays centered even when paired with the image
+            on desktop, keeping the editorial card composition. */}
         <div
-          className="flex flex-col items-center gap-8 sm:gap-10"
+          className="flex flex-col items-center gap-8 text-center sm:gap-10"
           style={{ animation: "hero-fade-up 1.1s ease-out both" }}
         >
-          {hero.eyebrow ? (
-            <span
-              className="text-[0.7rem] font-medium uppercase tracking-[0.5em] sm:text-xs"
-              style={{ color: "#b8975a" }}
+          <div className="flex flex-col items-center gap-8 sm:gap-10">
+            {hero.eyebrow ? (
+              <span
+                className="text-[0.7rem] font-medium uppercase tracking-[0.5em] sm:text-xs"
+                style={{ color: "#b8975a" }}
+              >
+                {hero.eyebrow}
+              </span>
+            ) : null}
+
+            <LeafSprig />
+
+            <h1
+              className="font-serif leading-[0.95] text-[3.25rem] sm:text-7xl lg:text-[5rem] xl:text-[6rem]"
+              style={{ color: "#2e2e2c" }}
             >
-              {hero.eyebrow}
-            </span>
-          ) : null}
+              {hero.heading}
+            </h1>
 
-          <LeafSprig />
+            <DotDivider />
 
-          <h1
-            className="font-serif leading-[0.95] text-[3.25rem] sm:text-7xl lg:text-[7rem]"
-            style={{ color: "#2e2e2c" }}
-          >
-            {hero.heading}
-          </h1>
+            <p
+              className="text-sm font-medium uppercase tracking-[0.4em] sm:text-base sm:tracking-[0.5em]"
+              style={{ color: "#6f7f69" }}
+            >
+              {formattedDate}
+            </p>
+          </div>
 
-          <DotDivider />
-
-          <p
-            className="text-sm font-medium uppercase tracking-[0.4em] sm:text-base sm:tracking-[0.5em]"
-            style={{ color: "#6f7f69" }}
-          >
-            {formattedDate}
-          </p>
+          {(primaryCta || secondaryCta || tertiaryCta) && (
+            <div
+              className="mt-4 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+              style={{ animation: "hero-fade-up 1.1s 0.2s ease-out both" }}
+            >
+              {secondaryCta ? (
+                <Button
+                  href={secondaryCta.href}
+                  size="md"
+                  variant="secondary"
+                  className="sm:order-1"
+                >
+                  {secondaryCta.label}
+                </Button>
+              ) : null}
+              {tertiaryCta ? (
+                <Button
+                  href={tertiaryCta.href}
+                  size="md"
+                  variant="secondary"
+                  className="sm:order-2"
+                >
+                  {tertiaryCta.label}
+                </Button>
+              ) : null}
+              {primaryCta ? (
+                <Button
+                  href={primaryCta.href}
+                  size="md"
+                  variant="primary"
+                  className="sm:order-3"
+                >
+                  {primaryCta.label}
+                </Button>
+              ) : null}
+            </div>
+          )}
         </div>
 
-        {(primaryCta || secondaryCta || tertiaryCta) && (
+        {/* Image column — hidden on mobile/tablet so the invitation card
+            keeps focus, restored on lg+ as a tall portrait alongside. */}
+        {hero.backgroundImage ? (
           <div
-            className="mt-4 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center"
-            style={{ animation: "hero-fade-up 1.1s 0.2s ease-out both" }}
+            className="relative hidden lg:block"
+            style={{ animation: "hero-fade-in 1.4s ease-out both" }}
           >
-            {secondaryCta ? (
-              <Button
-                href={secondaryCta.href}
-                size="md"
-                variant="secondary"
-                className="sm:order-1"
-              >
-                {secondaryCta.label}
-              </Button>
-            ) : null}
-            {tertiaryCta ? (
-              <Button
-                href={tertiaryCta.href}
-                size="md"
-                variant="secondary"
-                className="sm:order-2"
-              >
-                {tertiaryCta.label}
-              </Button>
-            ) : null}
-            {primaryCta ? (
-              <Button
-                href={primaryCta.href}
-                size="md"
-                variant="primary"
-                className="sm:order-3"
-              >
-                {primaryCta.label}
-              </Button>
-            ) : null}
+            <div className="relative mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-[2rem] xl:max-w-lg">
+              <Image
+                src={hero.backgroundImage.src}
+                alt={hero.backgroundImage.alt}
+                fill
+                priority
+                sizes="(min-width: 1280px) 32rem, (min-width: 1024px) 28rem, 100vw"
+                className="object-cover"
+              />
+              {/* Soft cream wash to keep the photo on-brand. */}
+              <div
+                aria-hidden
+                className="absolute inset-0 mix-blend-soft-light"
+                style={{
+                  background:
+                    "linear-gradient(140deg, rgba(245, 241, 234, 0.3), transparent 55%)",
+                }}
+              />
+            </div>
           </div>
-        )}
+        ) : null}
       </Container>
     </section>
   );
