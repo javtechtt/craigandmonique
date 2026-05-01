@@ -74,8 +74,9 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
         >
           {/* Backdrop — heavily darkened so the underlying page reads as
               "behind" rather than competing with the drawer copy.
-              Literal rgba so it can never fall through to transparent if
-              a custom property fails to resolve. */}
+              No backdrop-filter — on mobile Safari it's been observed to
+              cause adjacent absolutely-positioned siblings (our drawer
+              panel) to render with their backgrounds composited away. */}
           <button
             type="button"
             aria-label="Close navigation"
@@ -83,24 +84,28 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
             className="absolute inset-0 size-full"
             style={{
               backgroundColor: "rgba(46, 46, 44, 0.85)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
               animation: "hero-fade-in 0.2s ease-out both",
             }}
           />
 
-          {/* Drawer panel — solid white fill so the menu items always
-              read clearly regardless of what's behind. */}
-          <aside
-            className="absolute right-0 top-0 z-10 flex h-full w-[82vw] max-w-sm flex-col"
+          {/* Drawer panel — solid white fill via every channel we can:
+              Tailwind utility (bg-white), inline backgroundColor literal,
+              an explicit white linear-gradient as a non-defeasible
+              background-image, and `isolation: isolate` to seal off the
+              stacking context. */}
+          <div
+            className="absolute right-0 top-0 z-10 flex h-full w-[82vw] max-w-sm flex-col bg-white"
             style={{
               backgroundColor: "#ffffff",
+              backgroundImage: "linear-gradient(#ffffff, #ffffff)",
+              isolation: "isolate",
               opacity: 1,
               borderLeft: "1px solid rgba(167, 181, 160, 0.6)",
               boxShadow: "-30px 0 80px -20px rgba(46, 46, 44, 0.75)",
               animation:
                 "drawer-slide-in 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both",
             }}
+            role="presentation"
           >
             <div
               className="flex items-center justify-between px-6 py-5"
@@ -178,7 +183,7 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
                 </Link>
               </div>
             ) : null}
-          </aside>
+          </div>
         </div>
       ) : null}
     </>
