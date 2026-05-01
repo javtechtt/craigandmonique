@@ -115,7 +115,7 @@ export const weddingConfig: WeddingConfig = {
         "Join us as we exchange vows surrounded by the people we love most.",
       startsAt: "2026-08-02T14:00:00",
       venue: {
-        name: "Arima SDA",
+        name: "Arima Seventh Day Adventist Church",
         addressLine1: "19 De Gannes Street",
         city: "Arima",
         country: "Trinidad and Tobago",
