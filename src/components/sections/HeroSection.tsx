@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { LeafSprig } from "@/components/ui/LeafSprig";
+import { WaveSprig } from "@/components/ui/LeafSprig";
 import { formatWeddingDate } from "@/lib/formatDate";
 
 interface HeroSectionProps {
@@ -90,7 +90,7 @@ export function HeroSection({ config }: HeroSectionProps) {
               </span>
             ) : null}
 
-            <LeafSprig className="w-40" />
+            <WaveSprig className="w-40" />
 
             <h1
               className="font-serif leading-[0.95] text-[3.25rem] sm:text-7xl lg:text-[5rem] xl:text-[6rem]"

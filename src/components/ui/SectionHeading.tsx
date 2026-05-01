@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { LeafSprig } from "@/components/ui/LeafSprig";
 import { cn } from "@/lib/cn";
 
 interface SectionHeadingProps {
@@ -7,8 +6,13 @@ interface SectionHeadingProps {
   title: string;
   description?: ReactNode;
   align?: "left" | "center";
-  /** Render the small sprig ornament between the eyebrow and the title. */
-  sprig?: boolean;
+  /**
+   * Optional ornament rendered between the eyebrow and the title. Each
+   * section is expected to pass a different sprig variant from
+   * `@/components/ui/LeafSprig` so the page reads as a varied set of
+   * botanical accents rather than the same shape repeated everywhere.
+   */
+  sprig?: ReactNode;
   className?: string;
 }
 
@@ -17,7 +21,7 @@ export function SectionHeading({
   title,
   description,
   align = "center",
-  sprig = true,
+  sprig,
   className,
 }: SectionHeadingProps) {
   const isCenter = align === "center";
@@ -39,7 +43,7 @@ export function SectionHeading({
         </span>
       ) : null}
 
-      {sprig ? <LeafSprig className="my-1 w-28 sm:w-32" hideDot={isCenter} /> : null}
+      {sprig ?? null}
 
       <h2
         className="font-serif text-3xl leading-tight sm:text-4xl md:text-5xl"

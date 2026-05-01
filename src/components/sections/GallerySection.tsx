@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { WeddingConfig, WeddingImage } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { OliveBranch } from "@/components/ui/LeafSprig";
 import { cn } from "@/lib/cn";
 
 interface GallerySectionProps {
@@ -73,6 +74,7 @@ export function GallerySection({ config }: GallerySectionProps) {
           eyebrow="Captured together"
           title={gallery.heading}
           description={gallery.description}
+          sprig={<OliveBranch className="my-1 w-32 sm:w-36" />}
         />
 
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
