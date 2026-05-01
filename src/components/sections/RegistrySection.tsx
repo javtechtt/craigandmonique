@@ -5,7 +5,6 @@ import type {
 } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { VineCurl } from "@/components/ui/LeafSprig";
 import { Button } from "@/components/ui/Button";
 
 interface RegistrySectionProps {
@@ -51,7 +50,6 @@ export function RegistrySection({ config }: RegistrySectionProps) {
           eyebrow="With gratitude"
           title={heading}
           description={registry.description}
-          sprig={<VineCurl className="my-1 w-32 sm:w-36" />}
         />
 
         <ul

@@ -6,13 +6,6 @@ interface SectionHeadingProps {
   title: string;
   description?: ReactNode;
   align?: "left" | "center";
-  /**
-   * Optional ornament rendered between the eyebrow and the title. Each
-   * section is expected to pass a different sprig variant from
-   * `@/components/ui/LeafSprig` so the page reads as a varied set of
-   * botanical accents rather than the same shape repeated everywhere.
-   */
-  sprig?: ReactNode;
   className?: string;
 }
 
@@ -21,7 +14,6 @@ export function SectionHeading({
   title,
   description,
   align = "center",
-  sprig,
   className,
 }: SectionHeadingProps) {
   const isCenter = align === "center";
@@ -42,8 +34,6 @@ export function SectionHeading({
           {eyebrow}
         </span>
       ) : null}
-
-      {sprig ?? null}
 
       <h2
         className="font-serif text-3xl leading-tight sm:text-4xl md:text-5xl"

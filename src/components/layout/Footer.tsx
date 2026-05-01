@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
-import { SingleStem } from "@/components/ui/LeafSprig";
 import { formatWeddingDate } from "@/lib/formatDate";
 
 interface FooterProps {
@@ -23,7 +22,6 @@ export function Footer({ config }: FooterProps) {
     >
       <Container size="xl" className="flex flex-col gap-10 py-16">
         <div className="flex flex-col items-center gap-3 text-center">
-          <SingleStem className="mb-1 w-10 sm:w-12" color="#f5f1ea" />
           <p
             className="text-xs uppercase tracking-[0.4em]"
             style={{ color: "var(--color-gold)" }}

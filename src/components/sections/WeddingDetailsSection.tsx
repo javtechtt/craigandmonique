@@ -3,7 +3,6 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { AddToCalendarButton } from "@/components/ui/AddToCalendarButton";
-import { CornerSpray, SprayCluster } from "@/components/ui/LeafSprig";
 import { formatTime, formatShortDate } from "@/lib/formatDate";
 
 interface WeddingDetailsSectionProps {
@@ -40,7 +39,6 @@ export function WeddingDetailsSection({ config }: WeddingDetailsSectionProps) {
           eyebrow="Save the dates"
           title="Wedding Details"
           description="Where and when to find us on the day."
-          sprig={<SprayCluster className="my-1 w-16 sm:w-20" />}
         />
 
         <ul
@@ -105,12 +103,6 @@ function DetailsCard({
         <span
           className="absolute -right-20 -top-20 size-56 rounded-full blur-3xl opacity-40"
           style={{ backgroundColor: "var(--color-sage)" }}
-        />
-        {/* Corner spray — anchors the card without competing with the
-            other ornaments on the page. */}
-        <CornerSpray
-          className="absolute left-3 top-3 w-12 opacity-60 sm:w-14"
-          color="#a7b5a0"
         />
       </div>
 

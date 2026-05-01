@@ -89,13 +89,12 @@ export function MobileMenu({ brand, items, cta }: MobileMenuProps) {
             }}
           />
 
-          {/* Drawer panel — solid cream fill (literal hex), explicit
-              opacity, and an opaque inset overlay as belt-and-braces so
-              nothing from the page can read through. */}
+          {/* Drawer panel — solid white fill so the menu items always
+              read clearly regardless of what's behind. */}
           <aside
             className="absolute right-0 top-0 z-10 flex h-full w-[82vw] max-w-sm flex-col"
             style={{
-              backgroundColor: "#f5f1ea",
+              backgroundColor: "#ffffff",
               opacity: 1,
               borderLeft: "1px solid rgba(167, 181, 160, 0.6)",
               boxShadow: "-30px 0 80px -20px rgba(46, 46, 44, 0.75)",

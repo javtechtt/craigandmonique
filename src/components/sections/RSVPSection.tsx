@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { TwinLeaves } from "@/components/ui/LeafSprig";
 import { Button } from "@/components/ui/Button";
 import { formatShortDate } from "@/lib/formatDate";
 import { cn } from "@/lib/cn";
@@ -110,7 +109,6 @@ export function RSVPSection({ config }: RSVPSectionProps) {
           eyebrow="Will you join us?"
           title="RSVP"
           description={rsvp.description}
-          sprig={<TwinLeaves className="my-1 w-12 sm:w-14" />}
         />
 
         <div
