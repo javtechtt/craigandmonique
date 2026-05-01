@@ -66,8 +66,22 @@ export function Footer({ config }: FooterProps) {
             borderColor: "color-mix(in srgb, var(--color-cream) 25%, transparent)",
           }}
         >
-          <span className="opacity-70">
-            &copy; {year} {couple.displayName}
+          <span className="inline-flex items-center gap-2 opacity-70">
+            <span>&copy; {year}</span>
+            <span className="inline-flex items-center font-serif text-base normal-case tracking-tight">
+              <span className="leading-none">
+                {couple.partnerOne.firstName.charAt(0)}
+              </span>
+              <span
+                className="mx-0.5 leading-none"
+                style={{ color: "#b8975a" }}
+              >
+                &
+              </span>
+              <span className="leading-none">
+                {couple.partnerTwo.firstName.charAt(0)}
+              </span>
+            </span>
           </span>
           {footer.credit ? <span className="opacity-70">{footer.credit}</span> : null}
         </div>
