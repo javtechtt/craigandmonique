@@ -53,13 +53,15 @@ export function CountdownSection({ config }: CountdownSectionProps) {
   const target = getWeddingMoment(weddingDate, timezone);
   const valid = target !== null;
 
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
-    target !== null ? diff(target, Date.now()) : ZERO,
-  );
+  // Initial state must be deterministic — server-side `Date.now()`
+  // does not match the client's `Date.now()` at hydration time, which
+  // would mismatch the seconds digit in the rendered HTML and trigger
+  // React hydration error #418. We tick to the real value inside
+  // useEffect, which only runs after hydration on the client.
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(ZERO);
 
   useEffect(() => {
     if (target === null) return;
-    // Snap to the next whole second to avoid drift on initial paint.
     setTimeLeft(diff(target, Date.now()));
     const id = window.setInterval(() => {
       setTimeLeft(diff(target, Date.now()));
