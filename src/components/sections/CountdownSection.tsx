@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
+import { LeafSprig } from "@/components/ui/LeafSprig";
 import { formatWeddingDate, getWeddingMoment } from "@/lib/formatDate";
 
 interface CountdownSectionProps {
@@ -107,6 +108,7 @@ export function CountdownSection({ config }: CountdownSectionProps) {
           >
             Counting the moments
           </span>
+          <LeafSprig className="my-1 w-28 sm:w-32" hideDot />
           <h2
             className="font-serif text-3xl leading-tight sm:text-4xl md:text-5xl"
             style={{ color: "var(--color-charcoal)" }}

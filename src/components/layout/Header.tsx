@@ -27,17 +27,21 @@ export function Header({ config }: HeaderProps) {
         <Link
           href="/"
           aria-label={`${couple.displayName} — home`}
-          className="font-serif text-2xl tracking-[0.05em] sm:text-3xl"
+          className="inline-flex items-center font-serif text-2xl leading-none tracking-tight sm:text-3xl"
           style={{ color: "var(--color-charcoal)" }}
         >
-          <span>{couple.partnerOne.firstName.charAt(0)}</span>
+          <span className="leading-none">
+            {couple.partnerOne.firstName.charAt(0)}
+          </span>
           <span
-            className="mx-1.5 align-middle"
+            className="mx-0.5 leading-none"
             style={{ color: "var(--color-gold)" }}
           >
             &
           </span>
-          <span>{couple.partnerTwo.firstName.charAt(0)}</span>
+          <span className="leading-none">
+            {couple.partnerTwo.firstName.charAt(0)}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

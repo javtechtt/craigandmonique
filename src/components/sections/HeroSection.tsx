@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { LeafSprig } from "@/components/ui/LeafSprig";
 import { formatWeddingDate } from "@/lib/formatDate";
 
 interface HeroSectionProps {
@@ -19,7 +20,7 @@ interface HeroSectionProps {
  * shape arrives from the fetcher — this component does not change.
  */
 export function HeroSection({ config }: HeroSectionProps) {
-  const { hero, weddingDate, timezone } = config;
+  const { hero, couple, weddingDate, timezone } = config;
   const formattedDate = formatWeddingDate(weddingDate, { timezone });
 
   const primaryCta =
@@ -89,7 +90,7 @@ export function HeroSection({ config }: HeroSectionProps) {
               </span>
             ) : null}
 
-            <LeafSprig />
+            <LeafSprig className="w-40" />
 
             <h1
               className="font-serif leading-[0.95] text-[3.25rem] sm:text-7xl lg:text-[5rem] xl:text-[6rem]"
@@ -173,54 +174,37 @@ export function HeroSection({ config }: HeroSectionProps) {
                 }}
               />
             </div>
+
+            {/* Floating C & M / Forever monogram pill */}
+            <div
+              className="absolute -bottom-8 left-10 flex items-center gap-3 rounded-full px-5 py-3 backdrop-blur-md"
+              style={{
+                backgroundColor: "rgba(245, 241, 234, 0.85)",
+                border: "1px solid rgba(184, 151, 90, 0.5)",
+                boxShadow: "0 20px 40px -24px rgba(46, 46, 44, 0.3)",
+              }}
+            >
+              <span
+                className="font-serif text-2xl"
+                style={{ color: "#2e2e2c" }}
+              >
+                {couple.partnerOne.firstName.charAt(0)}
+                <span className="mx-1" style={{ color: "#b8975a" }}>
+                  &
+                </span>
+                {couple.partnerTwo.firstName.charAt(0)}
+              </span>
+              <span
+                className="text-[0.65rem] uppercase tracking-[0.32em]"
+                style={{ color: "#6f7f69" }}
+              >
+                Forever
+              </span>
+            </div>
           </div>
         ) : null}
       </Container>
     </section>
-  );
-}
-
-/**
- * Botanical sprig drawn as a curved branch with paired leaves and a small
- * dot to the side. Pure SVG, scales with the surrounding text. Sage
- * stroke matches the wedding palette.
- */
-function LeafSprig() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 160 36"
-      width="160"
-      height="36"
-      className="opacity-90"
-    >
-      <g
-        stroke="#6f7f69"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      >
-        {/* Tiny dot to the left of the branch */}
-        <circle cx="6" cy="18" r="1.6" fill="#6f7f69" />
-
-        {/* Main stem — gentle S-curve */}
-        <path d="M16 18 C 40 8, 70 6, 92 10 C 110 13, 132 14, 154 18" />
-
-        {/* Upper-side leaves */}
-        <path d="M30 14 Q 33 6, 42 8 Q 38 14, 30 14 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M52 10 Q 56 2, 65 5 Q 60 12, 52 10 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M76 9 Q 80 1, 90 4 Q 84 11, 76 9 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M100 12 Q 104 4, 114 7 Q 108 14, 100 12 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M124 14 Q 130 6, 140 10 Q 132 17, 124 14 Z" fill="#6f7f69" fillOpacity="0.18" />
-
-        {/* Lower-side leaves */}
-        <path d="M40 22 Q 44 30, 51 27 Q 47 21, 40 22 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M64 22 Q 68 30, 75 27 Q 71 21, 64 22 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M88 22 Q 92 30, 100 27 Q 95 21, 88 22 Z" fill="#6f7f69" fillOpacity="0.18" />
-        <path d="M112 23 Q 117 30, 124 27 Q 119 22, 112 23 Z" fill="#6f7f69" fillOpacity="0.18" />
-      </g>
-    </svg>
   );
 }
 
