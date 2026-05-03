@@ -69,13 +69,13 @@ export function MobileNav({ brand, monogram, items }: MobileNavProps) {
         aria-hidden
         fill
         sizes="100vw"
-        priority={false}
+        loading="eager"
         className="pointer-events-none object-cover"
         style={{
-          opacity: 0.75,
-          // Nudge the visible crop ~10px right of centre to better
+          opacity: 0.2,
+          // Nudge the visible crop ~20px right of centre to better
           // frame the couple within the viewport.
-          objectPosition: "calc(50% + 10px) center",
+          objectPosition: "calc(50% + 20px) center",
         }}
       />
       {/* Soft cream wash kept light so the photo reads through. */}
