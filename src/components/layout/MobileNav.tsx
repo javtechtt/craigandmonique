@@ -76,6 +76,10 @@ export function MobileNav({ brand, monogram, items }: MobileNavProps) {
           // Nudge the visible crop ~30px right of centre to better
           // frame the couple within the viewport.
           objectPosition: "calc(50% + 30px) center",
+          // Gracefully fade the photo in from 0 to its 0.2 target
+          // (the keyframe has no `to`, so it interpolates toward the
+          // inline opacity above).
+          animation: "fade-from-zero 0.9s ease-out both",
         }}
       />
       {/* Soft cream wash kept light so the photo reads through. */}

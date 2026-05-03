@@ -145,6 +145,16 @@ a {
   }
 }
 
+/* Animates an element from 0 toward its specified opacity. The lack
+ * of a `to` keyframe means the runtime/inline opacity acts as the
+ * end state, so animating an element with inline `opacity: 0.2` will
+ * gracefully ramp from 0 → 0.2 instead of overshooting to 1. */
+@keyframes fade-from-zero {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
