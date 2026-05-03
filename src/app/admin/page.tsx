@@ -8,6 +8,8 @@ import {
 } from "@/lib/rsvpServer";
 import { weddingConfig } from "@/data/wedding.config";
 import { ExportCsvButton } from "@/app/admin/ExportCsvButton";
+import { DeleteRsvpButton } from "@/app/admin/DeleteRsvpButton";
+import { AddRsvpForm } from "@/app/admin/AddRsvpForm";
 
 export const dynamic = "force-dynamic";
 
@@ -163,6 +165,79 @@ export default async function AdminPage() {
       </section>
 
       <section className="mt-10">
+        <div className="flex items-end justify-between gap-3">
+          <h2 className="font-serif text-xl">All responses</h2>
+        </div>
+
+        <div className="mt-3">
+          <AddRsvpForm
+            mealOptions={weddingConfig.rsvp.mealOptions ?? []}
+            pendingInvitations={pendingInvitations.map((g) => ({
+              token: g.token,
+              fullName: g.full_name,
+              partySize: g.party_size,
+            }))}
+          />
+        </div>
+
+        {rsvps.length === 0 ? (
+          <p className="mt-4 text-neutral-500">
+            No RSVPs yet. They will appear here as guests submit.
+          </p>
+        ) : (
+          <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200">
+            <table className="w-full border-collapse text-left">
+              <thead className="bg-neutral-50 text-xs uppercase tracking-wider text-neutral-500">
+                <tr>
+                  <th className="px-3 py-2">Submitted</th>
+                  <th className="px-3 py-2">Name</th>
+                  <th className="px-3 py-2">Contact</th>
+                  <th className="px-3 py-2">Meal</th>
+                  <th className="px-3 py-2">Token</th>
+                  <th className="px-3 py-2">Message</th>
+                  <th className="px-3 py-2 text-right">Manage</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {rsvps.map((row) => (
+                  <tr key={row.id} className="align-top">
+                    <td className="whitespace-nowrap px-3 py-2 text-neutral-500">
+                      {row.created_at
+                        ? new Date(row.created_at).toLocaleString()
+                        : "—"}
+                    </td>
+                    <td className="px-3 py-2 font-medium">{row.full_name}</td>
+                    <td className="px-3 py-2">{row.contact}</td>
+                    <td className="px-3 py-2">
+                      {row.meal_preference ?? "—"}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-neutral-600">
+                      {row.guest_token ? (
+                        <code>{row.guest_token}</code>
+                      ) : (
+                        <span className="opacity-60">anonymous</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 max-w-md whitespace-pre-wrap text-neutral-700">
+                      {row.message ?? "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {typeof row.id === "number" ? (
+                        <DeleteRsvpButton
+                          id={row.id}
+                          fullName={row.full_name}
+                        />
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10">
         <h2 className="font-serif text-xl">Pending invitations</h2>
         {guestsErrored ? (
           <p className="mt-3 text-amber-700">
@@ -197,56 +272,6 @@ export default async function AdminPage() {
                     <td className="px-3 py-2">{guest.party_size}</td>
                     <td className="px-3 py-2 text-neutral-700">
                       <code className="break-all">?guest={guest.token}</code>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="mt-10">
-        <h2 className="font-serif text-xl">All responses</h2>
-        {rsvps.length === 0 ? (
-          <p className="mt-3 text-neutral-500">
-            No RSVPs yet. They will appear here as guests submit.
-          </p>
-        ) : (
-          <div className="mt-3 overflow-x-auto rounded-lg border border-neutral-200">
-            <table className="w-full border-collapse text-left">
-              <thead className="bg-neutral-50 text-xs uppercase tracking-wider text-neutral-500">
-                <tr>
-                  <th className="px-3 py-2">Submitted</th>
-                  <th className="px-3 py-2">Name</th>
-                  <th className="px-3 py-2">Contact</th>
-                  <th className="px-3 py-2">Meal</th>
-                  <th className="px-3 py-2">Token</th>
-                  <th className="px-3 py-2">Message</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {rsvps.map((row) => (
-                  <tr key={row.id} className="align-top">
-                    <td className="whitespace-nowrap px-3 py-2 text-neutral-500">
-                      {row.created_at
-                        ? new Date(row.created_at).toLocaleString()
-                        : "—"}
-                    </td>
-                    <td className="px-3 py-2 font-medium">{row.full_name}</td>
-                    <td className="px-3 py-2">{row.contact}</td>
-                    <td className="px-3 py-2">
-                      {row.meal_preference ?? "—"}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-neutral-600">
-                      {row.guest_token ? (
-                        <code>{row.guest_token}</code>
-                      ) : (
-                        <span className="opacity-60">anonymous</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 max-w-md whitespace-pre-wrap text-neutral-700">
-                      {row.message ?? "—"}
                     </td>
                   </tr>
                 ))}
