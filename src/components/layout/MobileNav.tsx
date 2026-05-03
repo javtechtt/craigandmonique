@@ -73,9 +73,9 @@ export function MobileNav({ brand, monogram, items }: MobileNavProps) {
         className="pointer-events-none object-cover"
         style={{
           opacity: 0.2,
-          // Nudge the visible crop ~20px right of centre to better
+          // Nudge the visible crop ~30px right of centre to better
           // frame the couple within the viewport.
-          objectPosition: "calc(50% + 20px) center",
+          objectPosition: "calc(50% + 30px) center",
         }}
       />
       {/* Soft cream wash kept light so the photo reads through. */}
