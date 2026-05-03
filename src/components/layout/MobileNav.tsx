@@ -49,16 +49,28 @@ export function MobileNav({ brand, items }: MobileNavProps) {
       aria-modal="true"
       aria-label={`${brand} navigation`}
       aria-labelledby={titleId}
-      className="fixed inset-0 z-[99999] flex h-screen w-screen flex-col bg-white"
+      className="fixed inset-0 z-[99999] flex h-screen w-screen flex-col overflow-hidden"
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f5f1ea",
         animation: "hero-fade-in 0.25s ease-out both",
       }}
     >
-      <header className="flex items-center justify-between px-6 py-6">
+      {/* Brand decorative blooms — match the hero's soft ambiance. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -right-24 h-[28rem] w-[28rem] rounded-full blur-3xl"
+        style={{ backgroundColor: "#a7b5a0", opacity: 0.32 }}
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-40 -left-24 h-[24rem] w-[24rem] rounded-full blur-3xl"
+        style={{ backgroundColor: "#b8975a", opacity: 0.18 }}
+      />
+
+      <header className="relative flex items-center justify-between px-6 py-6">
         <span
           id={titleId}
-          className="font-serif text-2xl"
+          className="font-serif text-xl tracking-tight"
           style={{ color: "#2e2e2c" }}
         >
           {brand}
@@ -70,15 +82,33 @@ export function MobileNav({ brand, items }: MobileNavProps) {
           className="flex h-10 w-10 items-center justify-center rounded-full"
           style={{
             color: "#2e2e2c",
-            backgroundColor: "#ffffff",
-            border: "1px solid rgba(111, 127, 105, 0.45)",
+            backgroundColor: "#f5f1ea",
+            border: "1px solid rgba(111, 127, 105, 0.5)",
           }}
         >
           <TriggerCross />
         </button>
       </header>
 
-      <ol className="flex flex-1 flex-col items-center justify-center gap-7 px-6 pb-24">
+      <div
+        className="relative flex items-center justify-center gap-3 pt-1 pb-3"
+        aria-hidden
+      >
+        <span
+          className="h-px w-12"
+          style={{ backgroundColor: "#6f7f69", opacity: 0.4 }}
+        />
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ backgroundColor: "#b8975a" }}
+        />
+        <span
+          className="h-px w-12"
+          style={{ backgroundColor: "#6f7f69", opacity: 0.4 }}
+        />
+      </div>
+
+      <ol className="relative flex flex-1 flex-col items-center justify-center gap-7 px-6 pb-24">
         {items.map((item, index) => (
           <li
             key={item.href}
@@ -89,7 +119,7 @@ export function MobileNav({ brand, items }: MobileNavProps) {
             <Link
               href={item.href}
               onClick={() => setOpen(false)}
-              className="font-serif tracking-tight"
+              className="font-serif tracking-tight transition-colors"
               style={{
                 color: "#2e2e2c",
                 fontSize: "2.5rem",
@@ -103,9 +133,9 @@ export function MobileNav({ brand, items }: MobileNavProps) {
       </ol>
 
       <footer
-        className="flex justify-center px-6 pb-10 text-xs uppercase"
+        className="relative flex justify-center px-6 pb-10 text-xs uppercase"
         style={{
-          color: "#6f7f69",
+          color: "#b8975a",
           letterSpacing: "0.4em",
           animation: `hero-fade-up 0.45s ${0.07 * items.length + 0.1}s ease-out both`,
         }}
