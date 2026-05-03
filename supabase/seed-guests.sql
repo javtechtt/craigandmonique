@@ -3,8 +3,6 @@
 -- 72 invitations, 81 total people invited (7 with +1, 1 with +2).
 
 insert into guests (wedding_slug, token, full_name, party_size) values
-  ('craig-and-monique', 'craig-batson', 'Craig Batson', 1),
-  ('craig-and-monique', 'monique-christian', 'Monique Christian', 1),
   ('craig-and-monique', 'andrea-agarratt-joseph', 'Andrea Agarratt-Joseph', 1),
   ('craig-and-monique', 'cassandra-bobb', 'Cassandra Bobb', 1),
   ('craig-and-monique', 'lee-andra-batson', 'Lee-andra Batson', 1),

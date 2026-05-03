@@ -47,24 +47,34 @@ export const GUESTS_TABLE = "guests";
 
 let cachedClient: SupabaseClient | null = null;
 
-export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY,
+/**
+ * Resolve the server-only Supabase secret key. Supabase recently
+ * renamed the legacy `service_role` key to "secret key" with an
+ * `sb_secret_*` prefix; either env-var name works here so the code
+ * keeps running across the rollover.
+ */
+function getSupabaseSecretKey(): string | undefined {
+  return (
+    process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_KEY
   );
 }
 
+export function isSupabaseConfigured(): boolean {
+  return Boolean(process.env.SUPABASE_URL && getSupabaseSecretKey());
+}
+
 /**
- * Returns a singleton Supabase client built with the service role key
- * (server-only). Throws if env vars aren't set — callers must guard
- * with `isSupabaseConfigured()` first.
+ * Returns a singleton Supabase client built with the secret /
+ * service-role key (server-only). Throws if env vars aren't set —
+ * callers must guard with `isSupabaseConfigured()` first.
  */
 export function getSupabase(): SupabaseClient {
   if (cachedClient) return cachedClient;
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_KEY;
+  const key = getSupabaseSecretKey();
   if (!url || !key) {
     throw new Error(
-      "Supabase env vars missing — set SUPABASE_URL and SUPABASE_SERVICE_KEY.",
+      "Supabase env vars missing — set SUPABASE_URL and SUPABASE_SECRET_KEY (or legacy SUPABASE_SERVICE_KEY).",
     );
   }
   cachedClient = createClient(url, key, {

@@ -167,8 +167,12 @@ export async function submitRsvp(
     }
   }
 
-  // 6. Notify the couple by email if Resend is configured
-  if (process.env.RESEND_API_KEY && process.env.COUPLE_EMAIL) {
+  // 6. Notify the couple by email if Resend is configured.
+  //    COUPLE_EMAIL accepts a single address or a comma-separated list
+  //    so multiple stakeholders (e.g. each partner's inbox) can receive
+  //    the notification without forwarding rules.
+  const recipients = parseCoupleEmails(process.env.COUPLE_EMAIL);
+  if (process.env.RESEND_API_KEY && recipients.length > 0) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const fromAddress =
@@ -180,7 +184,7 @@ export async function submitRsvp(
       );
       await resend.emails.send({
         from: fromAddress,
-        to: process.env.COUPLE_EMAIL,
+        to: recipients,
         subject: `New RSVP — ${fullName}${rows.length > 1 ? ` (+${rows.length - 1})` : ""}`,
         text: [
           `New RSVP for ${weddingConfig.couple.displayName}.`,
@@ -213,4 +217,17 @@ const TOKEN_PATTERN = /^[a-z0-9-]{1,120}$/;
 function sanitiseToken(raw: string): string {
   const t = raw.toLowerCase().trim();
   return TOKEN_PATTERN.test(t) ? t : "";
+}
+
+/**
+ * Accept `COUPLE_EMAIL` as either a single address or a comma- /
+ * semicolon-separated list. Strips any stray quotes the env file
+ * picks up and filters anything that doesn't look like an address.
+ */
+function parseCoupleEmails(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[,;]/)
+    .map((part) => part.trim().replace(/^['"]|['"]$/g, ""))
+    .filter((part) => part.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(part));
 }
