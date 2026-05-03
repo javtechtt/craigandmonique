@@ -36,19 +36,26 @@ export function AddRsvpForm({ mealOptions, pendingInvitations }: AddRsvpFormProp
     event.preventDefault();
     setError(null);
     setSuccess(null);
-    const data = new FormData(event.currentTarget);
+    // Capture the form element AND any submitted values up front. After
+    // an `await`, React nulls out `event.currentTarget`, so reaching
+    // for it later throws — which Next.js surfaces as an opaque
+    // "page couldn't load" failure even though the row was already
+    // written server-side.
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const savedName = String(data.get("fullName") ?? "").trim() || "RSVP";
     startTransition(async () => {
       const result = await addRsvpManually(data);
       if (!result.ok) {
         setError(result.error ?? "Couldn't save the RSVP.");
         return;
       }
-      setSuccess(`Saved ${data.get("fullName") || "RSVP"}.`);
+      setSuccess(`Saved ${savedName}.`);
       // Reset visible inputs; the form itself remains mounted so the
       // admin can record a second response in a row.
       setSelectedToken("");
       setFullName("");
-      event.currentTarget.reset();
+      form.reset();
     });
   }
 
