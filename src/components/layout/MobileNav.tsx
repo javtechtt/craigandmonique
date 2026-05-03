@@ -71,13 +71,18 @@ export function MobileNav({ brand, monogram, items }: MobileNavProps) {
         sizes="100vw"
         priority={false}
         className="pointer-events-none object-cover"
-        style={{ opacity: 0.35 }}
+        style={{
+          opacity: 0.75,
+          // Nudge the visible crop ~10px right of centre to better
+          // frame the couple within the viewport.
+          objectPosition: "calc(50% + 10px) center",
+        }}
       />
-      {/* Cream wash above the image to keep menu copy crisp. */}
+      {/* Soft cream wash kept light so the photo reads through. */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
-        style={{ backgroundColor: "rgba(245, 241, 234, 0.35)" }}
+        style={{ backgroundColor: "rgba(245, 241, 234, 0.18)" }}
       />
 
       <header className="relative flex items-center justify-between px-6 py-6">
