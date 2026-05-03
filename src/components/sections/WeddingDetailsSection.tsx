@@ -76,9 +76,6 @@ function DetailsCard({
   index,
 }: DetailsCardProps) {
   const startTime = formatTime(event.startsAt, { timezone });
-  const endTime = event.endsAt
-    ? formatTime(event.endsAt, { timezone })
-    : null;
   const date = formatShortDate(event.startsAt, { timezone });
   const directionsHref = buildDirectionsUrl(event);
 
@@ -130,12 +127,7 @@ function DetailsCard({
         className="relative grid gap-5 text-center sm:gap-6"
         style={{ color: "var(--color-charcoal)" }}
       >
-        <DetailRow label="Time">
-          {startTime}
-          {endTime ? (
-            <span className="opacity-70"> — {endTime}</span>
-          ) : null}
-        </DetailRow>
+        <DetailRow label="Time">{startTime}</DetailRow>
 
         <DetailRow label="Location">
           <span className="font-medium">{event.venue.name}</span>
