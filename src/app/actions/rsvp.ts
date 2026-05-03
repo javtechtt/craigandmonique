@@ -2,6 +2,7 @@
 
 import { Resend } from "resend";
 import { weddingConfig } from "@/data/wedding.config";
+import { computeRsvpStatus } from "@/lib/rsvpStatus";
 import {
   getSupabase,
   isSupabaseConfigured,
@@ -30,13 +31,29 @@ const MAX_MESSAGE = 2000;
 export async function submitRsvp(
   formData: FormData,
 ): Promise<RsvpActionResult> {
-  // 1. Coerce + trim inputs from FormData
+  // 1. Server-side deadline guard. The client also locks the form
+  //    behind a closed-state card once the deadline passes, but a
+  //    stale tab or direct POST could still try to submit — so we
+  //    re-check the live deadline status here.
+  const status = computeRsvpStatus(
+    weddingConfig.rsvp.deadline,
+    weddingConfig.timezone,
+  );
+  if (status.state === "closed") {
+    return {
+      ok: false,
+      error:
+        "RSVPs are closed. Please contact the couple directly if you'd like to follow up.",
+    };
+  }
+
+  // 2. Coerce + trim inputs from FormData
   const fullName = String(formData.get("fullName") ?? "").trim();
   const contact = String(formData.get("contact") ?? "").trim();
   const mealPreference = String(formData.get("mealPreference") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
 
-  // 2. Validate
+  // 3. Validate
   if (!fullName) {
     return { ok: false, error: "Please enter your full name." };
   }

@@ -6,11 +6,18 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { submitRsvp } from "@/app/actions/rsvp";
+import type { RsvpStatus } from "@/lib/rsvpStatus";
 import { formatShortDate } from "@/lib/formatDate";
 import { cn } from "@/lib/cn";
 
 interface RSVPSectionProps {
   config: WeddingConfig;
+  /**
+   * Live deadline status, computed server-side in `page.tsx` and
+   * threaded through. Drives whether the form is open, shows a
+   * countdown banner, or is replaced by a closed-state card.
+   */
+  rsvpStatus?: RsvpStatus;
 }
 
 const DEFAULT_MEAL_OPTIONS = [
@@ -20,6 +27,12 @@ const DEFAULT_MEAL_OPTIONS = [
   "Gluten-free",
 ];
 
+const DEFAULT_RSVP_STATUS: RsvpStatus = {
+  state: "open",
+  daysRemaining: 0,
+  deadlineLabel: null,
+};
+
 /**
  * RSVP form — calls the `submitRsvp` Server Action with the form data.
  *
@@ -28,10 +41,18 @@ const DEFAULT_MEAL_OPTIONS = [
  *   - Resend configured → couple emailed a notification
  *   - Neither → server logs and returns success (dev mode)
  *
- * The component renders three visual states: the editable form,
- * an inline error banner above it on failure, and the SuccessCard.
+ * Three render states drive the UI:
+ *   - status `closed` (past the RSVP deadline) → locked card
+ *   - status `ending-soon` (≤ 7 days left) → form + gold reminder
+ *   - status `open` (default) → form rendered as normal
+ *
+ * Inside the open form, a `success` state replaces the form with a
+ * thank-you card, and submission errors render in a banner above.
  */
-export function RSVPSection({ config }: RSVPSectionProps) {
+export function RSVPSection({
+  config,
+  rsvpStatus = DEFAULT_RSVP_STATUS,
+}: RSVPSectionProps) {
   const { rsvp, couple, weddingDate, timezone } = config;
 
   type Status = "idle" | "success";
@@ -43,6 +64,8 @@ export function RSVPSection({ config }: RSVPSectionProps) {
     rsvp.mealOptions && rsvp.mealOptions.length > 0
       ? rsvp.mealOptions
       : DEFAULT_MEAL_OPTIONS;
+
+  const [mealPreference, setMealPreference] = useState(mealOptions[0]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,6 +84,9 @@ export function RSVPSection({ config }: RSVPSectionProps) {
       }
     });
   }
+
+  const isClosed = rsvpStatus.state === "closed";
+  const isEndingSoon = rsvpStatus.state === "ending-soon";
 
   return (
     <section
@@ -99,7 +125,12 @@ export function RSVPSection({ config }: RSVPSectionProps) {
               "0 30px 60px -36px color-mix(in srgb, var(--color-sage-dark) 60%, transparent)",
           }}
         >
-          {status === "success" ? (
+          {isClosed ? (
+            <ClosedCard
+              displayName={couple.displayName}
+              deadlineLabel={rsvpStatus.deadlineLabel}
+            />
+          ) : status === "success" ? (
             <SuccessCard
               displayName={couple.displayName}
               weddingDate={weddingDate}
@@ -111,6 +142,13 @@ export function RSVPSection({ config }: RSVPSectionProps) {
               noValidate
               className="flex flex-col gap-7"
             >
+              {isEndingSoon && rsvpStatus.deadlineLabel ? (
+                <DeadlineBanner
+                  daysRemaining={rsvpStatus.daysRemaining}
+                  deadlineLabel={rsvpStatus.deadlineLabel}
+                />
+              ) : null}
+
               {error ? (
                 <div
                   role="alert"
@@ -118,7 +156,8 @@ export function RSVPSection({ config }: RSVPSectionProps) {
                   style={{
                     backgroundColor:
                       "color-mix(in srgb, #b8975a 20%, var(--color-cream))",
-                    border: "1px solid color-mix(in srgb, #b8975a 60%, transparent)",
+                    border:
+                      "1px solid color-mix(in srgb, #b8975a 60%, transparent)",
                     color: "var(--color-charcoal)",
                   }}
                 >
@@ -166,22 +205,36 @@ export function RSVPSection({ config }: RSVPSectionProps) {
                 />
               </fieldset>
 
-              <Field id="mealPreference" label="Meal preference" required>
-                <select
-                  id="mealPreference"
-                  name="mealPreference"
-                  required
-                  defaultValue={mealOptions[0]}
-                  className={INPUT_CLASS}
-                  style={INPUT_STYLE}
+              <fieldset className="flex flex-col gap-3">
+                <legend
+                  className="text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+                  style={{ color: "var(--color-sage-dark)" }}
+                >
+                  Meal preference
+                  <span aria-hidden style={{ color: "var(--color-gold)" }}>
+                    {" *"}
+                  </span>
+                </legend>
+                <div
+                  className={cn(
+                    "grid gap-3",
+                    mealOptions.length <= 2
+                      ? "grid-cols-2"
+                      : "grid-cols-1 sm:grid-cols-2",
+                  )}
                 >
                   {mealOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
+                    <MealOption
+                      key={opt}
+                      name="mealPreference"
+                      value={opt}
+                      label={opt}
+                      selected={mealPreference === opt}
+                      onSelect={() => setMealPreference(opt)}
+                    />
                   ))}
-                </select>
-              </Field>
+                </div>
+              </fieldset>
 
               <Field id="message" label="A note for the couple">
                 <textarea
@@ -246,8 +299,7 @@ function Field({ id, label, required, children }: FieldProps) {
         {label}
         {required ? (
           <span aria-hidden style={{ color: "var(--color-gold)" }}>
-            {" "}
-            *
+            {" *"}
           </span>
         ) : null}
       </label>
@@ -286,6 +338,138 @@ function AttendanceOption({ name, value, label }: AttendanceOptionProps) {
       />
       {label}
     </label>
+  );
+}
+
+interface MealOptionProps {
+  name: string;
+  value: string;
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+}
+
+function MealOption({
+  name,
+  value,
+  label,
+  selected,
+  onSelect,
+}: MealOptionProps) {
+  return (
+    <label
+      className={cn(
+        "flex cursor-pointer items-center justify-center rounded-xl px-4 py-3 text-center text-sm font-medium tracking-wide transition-colors",
+        "focus-within:ring-2 focus-within:ring-offset-1",
+      )}
+      style={{
+        backgroundColor: selected
+          ? "var(--color-sage-dark)"
+          : "color-mix(in srgb, var(--color-cream) 60%, var(--color-sage) 8%)",
+        color: selected ? "var(--color-cream)" : "var(--color-charcoal)",
+        border:
+          "1px solid color-mix(in srgb, var(--color-sage) 60%, transparent)",
+      }}
+    >
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={selected}
+        onChange={onSelect}
+        className="sr-only"
+      />
+      {label}
+    </label>
+  );
+}
+
+interface DeadlineBannerProps {
+  daysRemaining: number;
+  deadlineLabel: string;
+}
+
+function DeadlineBanner({
+  daysRemaining,
+  deadlineLabel,
+}: DeadlineBannerProps) {
+  const message =
+    daysRemaining <= 1
+      ? `Last day to RSVP — responses close after ${deadlineLabel}.`
+      : `Only ${daysRemaining} days left to RSVP — responses close on ${deadlineLabel}.`;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="rounded-xl px-4 py-3 text-xs font-medium uppercase tracking-[0.32em]"
+      style={{
+        backgroundColor:
+          "color-mix(in srgb, var(--color-gold) 22%, var(--color-cream))",
+        border:
+          "1px solid color-mix(in srgb, var(--color-gold) 65%, transparent)",
+        color: "var(--color-gold)",
+      }}
+    >
+      {message}
+    </div>
+  );
+}
+
+interface ClosedCardProps {
+  displayName: string;
+  deadlineLabel: string | null;
+}
+
+function ClosedCard({ displayName, deadlineLabel }: ClosedCardProps) {
+  return (
+    <div className="flex flex-col items-center gap-4 py-6 text-center">
+      <span
+        className="flex size-14 items-center justify-center rounded-full"
+        style={{
+          backgroundColor: "var(--color-sage-dark)",
+          color: "var(--color-cream)",
+        }}
+        aria-hidden
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-6"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0110 0v4" />
+        </svg>
+      </span>
+
+      <h3
+        className="font-serif text-3xl sm:text-4xl"
+        style={{ color: "var(--color-charcoal)" }}
+      >
+        RSVPs are closed
+      </h3>
+
+      <p
+        className="max-w-md text-sm leading-relaxed sm:text-base"
+        style={{ color: "var(--color-sage-dark)" }}
+      >
+        {deadlineLabel
+          ? `Responses closed on ${deadlineLabel}. Please contact ${displayName} directly if you'd like to reach them about your RSVP.`
+          : `Responses are no longer being accepted. Please contact ${displayName} directly if you'd like to reach them about your RSVP.`}
+      </p>
+
+      <p
+        className="text-[0.65rem] uppercase tracking-[0.4em]"
+        style={{ color: "var(--color-gold)" }}
+      >
+        With love
+      </p>
+    </div>
   );
 }
 

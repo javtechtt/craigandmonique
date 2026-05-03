@@ -1,5 +1,6 @@
 import { weddingConfig } from "@/data/wedding.config";
 import type { WeddingConfig } from "@/types/wedding";
+import { computeRsvpStatus } from "@/lib/rsvpStatus";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -9,6 +10,12 @@ import { ScheduleSection } from "@/components/sections/ScheduleSection";
 import { GallerySection } from "@/components/sections/GallerySection";
 import { RSVPSection } from "@/components/sections/RSVPSection";
 import { RegistrySection } from "@/components/sections/RegistrySection";
+
+// Force a fresh render so the live RSVP deadline status (open /
+// ending-soon / closed) reflects the current time on each request.
+// Without this Next.js can statically render the page once at build
+// and the deadline banner never updates as the date approaches.
+export const dynamic = "force-dynamic";
 
 /**
  * Home page.
@@ -38,6 +45,7 @@ export default function HomePage() {
   const config = weddingConfig;
   const publicConfig = toPublicConfig(config);
   const { sections, rsvp, registry } = config;
+  const rsvpStatus = computeRsvpStatus(rsvp.deadline, config.timezone);
 
   return (
     <>
@@ -52,7 +60,7 @@ export default function HomePage() {
         {sections.schedule ? <ScheduleSection config={publicConfig} /> : null}
         {sections.gallery ? <GallerySection config={publicConfig} /> : null}
         {sections.rsvp && rsvp.enabled ? (
-          <RSVPSection config={publicConfig} />
+          <RSVPSection config={publicConfig} rsvpStatus={rsvpStatus} />
         ) : null}
         {sections.registry && registry.enabled ? (
           // Registry is a server component, so it can hold the full config

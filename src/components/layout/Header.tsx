@@ -3,6 +3,7 @@ import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { DesktopNav } from "@/components/layout/DesktopNav";
 
 interface HeaderProps {
   config: WeddingConfig;
@@ -44,18 +45,7 @@ export function Header({ config }: HeaderProps) {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-xs font-medium uppercase tracking-[0.28em] transition-colors hover:text-[color:var(--color-gold)]"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <DesktopNav items={navigation} />
 
         {hero.ctaLabel && hero.ctaHref ? (
           <div className="hidden md:block">

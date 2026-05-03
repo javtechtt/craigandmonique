@@ -11,6 +11,12 @@
  * properties.
  * --------------------------------------------------------------------- */
 :root {
+  /* Lock the page to a light theme — the cream/sage palette assumes
+   * light surfaces, and without this hint browsers in dark mode
+   * (especially Android Chrome) tint form controls and scrollbars
+   * which throws the colour scheme off. */
+  color-scheme: light;
+
   --color-sage: #a7b5a0;
   --color-sage-dark: #6f7f69;
   --color-cream: #f5f1ea;
@@ -19,6 +25,11 @@
 
   --background: var(--color-cream);
   --foreground: var(--color-charcoal);
+}
+
+html {
+  /* Smooth scroll for in-page anchor navigation (nav links, hero CTAs). */
+  scroll-behavior: smooth;
 }
 
 /* Surface the palette as Tailwind v4 theme tokens so utilities like
