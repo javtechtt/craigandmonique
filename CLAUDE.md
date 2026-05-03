@@ -12,7 +12,7 @@ every couple-specific value, so spinning up a new wedding is a one-file edit.
 - **Venues**: Arima Seventh Day Adventist Church (ceremony), Spazi Versatili (reception)
 - **Timezone**: `America/Port_of_Spain` (Trinidad, UTC-4 year-round)
 - **RSVP deadline**: 28 June 2026
-- **Invitation list**: 72 invitations, 81 total people (7 with `+1`, 1 with `+2`)
+- **Invitation list**: 70 invitations, 79 total people (7 with `+1`, 1 with `+2`)
   — sourced from `MC Guest List.xlsx` in the parent folder
 - **Repo**: https://github.com/javtechtt/craigandmonique
 - **Production URL**: https://www.craigandmonique.com
@@ -79,7 +79,7 @@ trimmed and validated) — see `parseCoupleEmails()` in
   access blocked
 - Schema in `supabase/schema.sql` (idempotent, includes `ALTER TABLE rsvps
   ADD COLUMN IF NOT EXISTS guest_token` migration for older deployments)
-- Seed in `supabase/seed-guests.sql` — 72 invite rows, idempotent via
+- Seed in `supabase/seed-guests.sql` — 70 invite rows, idempotent via
   `ON CONFLICT (token) DO NOTHING`. Auto-generated from the .xlsx
   spreadsheet; tokens are slug({first}-{last})
 
@@ -200,7 +200,7 @@ src/
   types/wedding.ts           → WeddingConfig type
 supabase/
   schema.sql                 → Tables + RLS lock
-  seed-guests.sql            → 72 invite rows
+  seed-guests.sql            → 70 invite rows
 public/
   images/couple/{hero,countdown}.jpg
   images/gallery/RZ9_*.jpg   → 12 engagement photos

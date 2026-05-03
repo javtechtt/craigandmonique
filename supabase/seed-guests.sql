@@ -1,6 +1,6 @@
 -- Auto-generated from 'MC Guest List.xlsx' on 2026-05-03.
 -- Insert is idempotent (ON CONFLICT DO NOTHING) — safe to re-run.
--- 72 invitations, 81 total people invited (7 with +1, 1 with +2).
+-- 70 invitations, 79 total people invited (7 with +1, 1 with +2).
 
 insert into guests (wedding_slug, token, full_name, party_size) values
   ('craig-and-monique', 'andrea-agarratt-joseph', 'Andrea Agarratt-Joseph', 1),

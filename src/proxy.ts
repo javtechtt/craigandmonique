@@ -14,17 +14,9 @@ export function proxy(request: NextRequest): NextResponse {
   const expectedUser = process.env.ADMIN_USER ?? "admin";
 
   if (!expectedPassword) {
-    // TEMPORARY DEBUG: list env-var names starting with ADMIN_ so we can
-    // see whether the variable is reaching the runtime at all (or only
-    // some other variant — typo, trailing space, wrong scope, etc.).
-    // Remove this branch once the env var is confirmed working.
-    const adminKeys = Object.keys(process.env)
-      .filter((k) => k.toUpperCase().includes("ADMIN"))
-      .sort();
     return new NextResponse(
-      `Admin access not configured — set ADMIN_PASSWORD.\n\n` +
-        `Debug: env keys matching /ADMIN/i = [${adminKeys.join(", ")}]`,
-      { status: 503, headers: { "content-type": "text/plain" } },
+      "Admin access not configured — set ADMIN_PASSWORD.",
+      { status: 503 },
     );
   }
 
