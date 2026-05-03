@@ -2,138 +2,195 @@ import { cn } from "@/lib/cn";
 
 interface LeafSprigProps {
   className?: string;
-  /** Stroke + leaf-fill colour. Defaults to sage-dark. */
+  /** Stroke colour for stems and vein lines. Defaults to sage-dark. */
   color?: string;
-  /** Drop the centre dot for a clean leaves-only branch. */
-  hideDot?: boolean;
-  /** Mirror horizontally (cosmetic — the sprig is already symmetric). */
+  /** Leaf body fill. Defaults to a softer mid-sage. */
+  leafColor?: string;
+  /** Mirror horizontally. */
   flip?: boolean;
 }
 
 /**
- * Botanical sprig — a straight stem with four mirrored leaf pairs and
- * a small centre dot. Symmetric across both vertical and horizontal
- * axes, drawn with thin sage strokes and a gentle leaf fill plus a
- * delicate midline vein per leaf for the editorial feel of a hand-
- * drawn laurel.
+ * Botanical sprig — flowing organic branch inspired by a watercolour
+ * leaf study. A curving main stem, three sub-stems branching off, and
+ * eleven leaves of varied shape and angle clustered along the branch.
+ *
+ * Pure SVG — no filters or rasters — so it scales cleanly. Different
+ * fill opacities across the leaves create a subtle watercolour-style
+ * variation in tone, and each leaf carries a thin midline vein for
+ * the delicate hand-drawn feel.
  */
 export function LeafSprig({
   className,
   color = "#6f7f69",
-  hideDot = false,
+  leafColor = "#a7b5a0",
   flip = false,
 }: LeafSprigProps) {
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 160 36"
+      viewBox="0 0 220 80"
       preserveAspectRatio="xMidYMid meet"
       className={cn("h-auto opacity-90", className)}
       style={flip ? { transform: "scaleX(-1)" } : undefined}
     >
       <g
-        stroke={color}
-        strokeWidth="1.1"
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="none"
       >
-        {/* Straight horizontal stem */}
-        <path d="M14 18 H 146" />
-
-        {!hideDot ? <circle cx="80" cy="18" r="1.6" fill={color} /> : null}
-
-        {/* === LEFT HALF — 4 leaves pointing up- and down-left === */}
-        {/* Outer-left, upper */}
+        {/* Main branch — gentle S-curve from lower-left to upper-right */}
         <path
-          d="M30 18 Q 23 10, 18 6 Q 25 13, 30 18 Z"
-          fill={color}
-          fillOpacity="0.18"
-        />
-        <path
-          d="M30 18 L 21 8"
-          strokeWidth="0.55"
-          strokeOpacity="0.55"
-        />
-        {/* Outer-left, lower */}
-        <path
-          d="M30 18 Q 23 26, 18 30 Q 25 23, 30 18 Z"
-          fill={color}
-          fillOpacity="0.18"
-        />
-        <path
-          d="M30 18 L 21 28"
-          strokeWidth="0.55"
-          strokeOpacity="0.55"
-        />
-        {/* Inner-left, upper */}
-        <path
-          d="M55 18 Q 48 11, 42 7 Q 50 14, 55 18 Z"
-          fill={color}
-          fillOpacity="0.18"
-        />
-        <path
-          d="M55 18 L 45 9"
-          strokeWidth="0.55"
-          strokeOpacity="0.55"
-        />
-        {/* Inner-left, lower */}
-        <path
-          d="M55 18 Q 48 25, 42 29 Q 50 22, 55 18 Z"
-          fill={color}
-          fillOpacity="0.18"
-        />
-        <path
-          d="M55 18 L 45 27"
-          strokeWidth="0.55"
-          strokeOpacity="0.55"
+          d="M 12 62 Q 55 42, 100 46 Q 145 50, 200 28"
+          stroke={color}
+          strokeWidth="1.1"
+          fill="none"
         />
 
-        {/* === RIGHT HALF — mirrored === */}
-        {/* Inner-right, upper */}
+        {/* Sub-stem 1 — left cluster, rising slightly */}
         <path
-          d="M105 18 Q 112 11, 118 7 Q 110 14, 105 18 Z"
-          fill={color}
-          fillOpacity="0.18"
+          d="M 38 56 Q 33 48, 30 38"
+          stroke={color}
+          strokeWidth="0.9"
+          fill="none"
         />
+        {/* Sub-stem 2 — central tall cluster, rising up to the main highlight */}
         <path
-          d="M105 18 L 115 9"
-          strokeWidth="0.55"
+          d="M 88 47 Q 84 30, 86 14"
+          stroke={color}
+          strokeWidth="0.9"
+          fill="none"
+        />
+        {/* Sub-stem 3 — right cluster, rising and arching outward */}
+        <path
+          d="M 155 47 Q 162 36, 168 22"
+          stroke={color}
+          strokeWidth="0.9"
+          fill="none"
+        />
+
+        {/* === LEFT CLUSTER (around 30, 38) === */}
+        {/* Leaf reaching up-left */}
+        <path
+          d="M 30 38 Q 22 32, 14 24 Q 22 30, 30 38 Z"
+          fill={leafColor}
+          fillOpacity="0.6"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.5"
+        />
+        <path d="M 30 38 L 17 27" stroke={color} strokeWidth="0.5" strokeOpacity="0.5" />
+
+        {/* Leaf reaching up-right (the showpiece of this cluster) */}
+        <path
+          d="M 30 38 Q 36 26, 42 16 Q 35 28, 30 38 Z"
+          fill={leafColor}
+          fillOpacity="0.7"
+          stroke={color}
+          strokeWidth="0.6"
           strokeOpacity="0.55"
         />
-        {/* Inner-right, lower */}
+        <path d="M 30 38 L 38 21" stroke={color} strokeWidth="0.5" strokeOpacity="0.55" />
+
+        {/* Leaf curling back down toward the main stem */}
         <path
-          d="M105 18 Q 112 25, 118 29 Q 110 22, 105 18 Z"
-          fill={color}
-          fillOpacity="0.18"
+          d="M 30 38 Q 24 46, 22 56 Q 28 48, 30 38 Z"
+          fill={leafColor}
+          fillOpacity="0.5"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.45"
         />
+        <path d="M 30 38 L 25 49" stroke={color} strokeWidth="0.5" strokeOpacity="0.5" />
+
+        {/* === CENTRAL CLUSTER (around 86, 14) === */}
+        {/* Long leaf reaching up-left */}
         <path
-          d="M105 18 L 115 27"
-          strokeWidth="0.55"
+          d="M 86 14 Q 76 8, 64 4 Q 76 8, 86 14 Z"
+          fill={leafColor}
+          fillOpacity="0.65"
+          stroke={color}
+          strokeWidth="0.6"
           strokeOpacity="0.55"
         />
-        {/* Outer-right, upper */}
+        <path d="M 86 14 L 70 8" stroke={color} strokeWidth="0.5" strokeOpacity="0.55" />
+
+        {/* Tall leaf, near vertical, the highest point of the sprig */}
         <path
-          d="M130 18 Q 137 10, 142 6 Q 135 13, 130 18 Z"
-          fill={color}
-          fillOpacity="0.18"
-        />
-        <path
-          d="M130 18 L 139 8"
-          strokeWidth="0.55"
+          d="M 86 14 Q 88 6, 92 -2 Q 90 6, 86 14 Z"
+          fill={leafColor}
+          fillOpacity="0.7"
+          stroke={color}
+          strokeWidth="0.6"
           strokeOpacity="0.55"
         />
-        {/* Outer-right, lower */}
+        <path d="M 86 14 L 90 4" stroke={color} strokeWidth="0.5" strokeOpacity="0.55" />
+
+        {/* Leaf reaching up-right */}
         <path
-          d="M130 18 Q 137 26, 142 30 Q 135 23, 130 18 Z"
-          fill={color}
-          fillOpacity="0.18"
+          d="M 86 14 Q 96 8, 108 4 Q 96 12, 86 14 Z"
+          fill={leafColor}
+          fillOpacity="0.6"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.5"
         />
+        <path d="M 86 14 L 100 8" stroke={color} strokeWidth="0.5" strokeOpacity="0.5" />
+
+        {/* Lower-right leaf curving away from cluster */}
         <path
-          d="M130 18 L 139 28"
-          strokeWidth="0.55"
+          d="M 86 14 Q 98 22, 110 28 Q 98 22, 86 14 Z"
+          fill={leafColor}
+          fillOpacity="0.55"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.5"
+        />
+        <path d="M 86 14 L 102 22" stroke={color} strokeWidth="0.5" strokeOpacity="0.5" />
+
+        {/* === RIGHT CLUSTER (around 168, 22) === */}
+        {/* Leaf reaching up-left */}
+        <path
+          d="M 168 22 Q 158 14, 148 8 Q 158 16, 168 22 Z"
+          fill={leafColor}
+          fillOpacity="0.6"
+          stroke={color}
+          strokeWidth="0.6"
           strokeOpacity="0.55"
         />
+        <path d="M 168 22 L 154 12" stroke={color} strokeWidth="0.5" strokeOpacity="0.55" />
+
+        {/* Tall leaf reaching up-right */}
+        <path
+          d="M 168 22 Q 174 12, 180 0 Q 174 12, 168 22 Z"
+          fill={leafColor}
+          fillOpacity="0.65"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.55"
+        />
+        <path d="M 168 22 L 175 8" stroke={color} strokeWidth="0.5" strokeOpacity="0.55" />
+
+        {/* Leaf reaching to the right tip */}
+        <path
+          d="M 168 22 Q 184 18, 198 12 Q 184 22, 168 22 Z"
+          fill={leafColor}
+          fillOpacity="0.55"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.5"
+        />
+        <path d="M 168 22 L 188 16" stroke={color} strokeWidth="0.5" strokeOpacity="0.5" />
+
+        {/* === SOLO LEAF AT THE BRANCH TIP (around 200, 28) === */}
+        <path
+          d="M 200 28 Q 210 22, 218 14 Q 210 22, 200 28 Z"
+          fill={leafColor}
+          fillOpacity="0.5"
+          stroke={color}
+          strokeWidth="0.6"
+          strokeOpacity="0.45"
+        />
+        <path d="M 200 28 L 212 18" stroke={color} strokeWidth="0.5" strokeOpacity="0.45" />
       </g>
     </svg>
   );
