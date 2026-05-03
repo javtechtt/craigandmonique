@@ -114,6 +114,9 @@ export const weddingConfig: WeddingConfig = {
       description:
         "Join us as we exchange vows surrounded by the people we love most.",
       startsAt: "2026-08-02T14:00:00",
+      // End set to 12 midnight (Aug 3 00:00) so the calendar entry blocks
+      // the whole wedding day on a guest's calendar.
+      endsAt: "2026-08-03T00:00:00",
       venue: {
         name: "Arima Seventh Day Adventist Church",
         addressLine1: "19 De Gannes Street",
@@ -130,6 +133,7 @@ export const weddingConfig: WeddingConfig = {
       description:
         "Cocktails, dinner, dancing and toasts to celebrate the day.",
       startsAt: "2026-08-02T18:00:00",
+      endsAt: "2026-08-03T00:00:00",
       venue: {
         name: "Spazi Versatili",
         addressLine1: "39A Lynton Gardens",

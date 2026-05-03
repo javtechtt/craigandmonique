@@ -6,6 +6,7 @@ import type {
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { BankReveal } from "@/components/ui/BankReveal";
 
 interface RegistrySectionProps {
   config: WeddingConfig;
@@ -128,7 +129,17 @@ function RegistryCard({ link, index }: RegistryCardProps) {
         </p>
       ) : null}
 
-      {link.details ? (
+      {/* Bank-kind links never inline their account info — the
+          BankReveal client widget fetches it via a Server Action only
+          after the user clicks. The check is on `kind` rather than
+          `details` because page.tsx strips `details` from the public
+          config before it crosses the client boundary, so this server
+          component must not depend on it being present. */}
+      {link.kind === "bank" ? (
+        <div className="relative">
+          <BankReveal label={link.label} />
+        </div>
+      ) : link.details ? (
         <pre
           className="relative whitespace-pre-wrap rounded-xl px-4 py-3 font-sans text-sm leading-relaxed"
           style={{

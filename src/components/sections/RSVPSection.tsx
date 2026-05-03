@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { submitRsvp } from "@/app/actions/rsvp";
 import { formatShortDate } from "@/lib/formatDate";
 import { cn } from "@/lib/cn";
 
@@ -20,37 +21,23 @@ const DEFAULT_MEAL_OPTIONS = [
 ];
 
 /**
- * RSVP form — client component because it manages submit state.
+ * RSVP form — calls the `submitRsvp` Server Action with the form data.
  *
- * Submitting prevents default, logs the payload, and swaps the form for
- * a success card. Wiring to a real backend is intentionally deferred.
+ * Backend behaviour depends on env vars (see `src/app/actions/rsvp.ts`):
+ *   - Supabase configured → row inserted into `rsvps`
+ *   - Resend configured → couple emailed a notification
+ *   - Neither → server logs and returns success (dev mode)
  *
- * --- Supabase integration TODO ------------------------------------------
- * 1. Create `rsvps` table:
- *      id uuid pk default uuid_generate_v4()
- *      created_at timestamptz default now()
- *      full_name text, contact text, attending boolean,
- *      guest_count int, meal_preference text, message text,
- *      wedding_slug text -- to support multi-couple deployments
- *
- * 2. Add row-level security: insert allowed for anon, select restricted
- *    to the couple's authenticated session.
- *
- * 3. Replace the `// TODO(supabase)` block in `handleSubmit` with:
- *      import { createClient } from "@supabase/supabase-js";
- *      const supabase = createClient(URL, ANON_KEY);
- *      const { error } = await supabase.from("rsvps").insert(payload);
- *      if (error) { setStatus("error"); return; }
- *
- * 4. Surface `status === "error"` in the UI (toast / inline banner).
- * ------------------------------------------------------------------------
+ * The component renders three visual states: the editable form,
+ * an inline error banner above it on failure, and the SuccessCard.
  */
 export function RSVPSection({ config }: RSVPSectionProps) {
   const { rsvp, couple, weddingDate, timezone } = config;
 
-  const [status, setStatus] = useState<"idle" | "submitting" | "success">(
-    "idle",
-  );
+  type Status = "idle" | "success";
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const mealOptions =
     rsvp.mealOptions && rsvp.mealOptions.length > 0
@@ -59,29 +46,20 @@ export function RSVPSection({ config }: RSVPSectionProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("submitting");
-
     const data = new FormData(event.currentTarget);
-    const payload = {
-      weddingSlug: config.slug,
-      fullName: String(data.get("fullName") ?? "").trim(),
-      contact: String(data.get("contact") ?? "").trim(),
-      attending: true,
-      // Each guest registers separately, so the count is always 1.
-      guestCount: 1,
-      mealPreference: String(data.get("mealPreference") ?? ""),
-      message: String(data.get("message") ?? "").trim(),
-      submittedAt: new Date().toISOString(),
-    };
+    setError(null);
 
-    // TODO(supabase): replace this stub with a real insert. See the
-    // header comment above for the schema and integration steps.
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[RSVP placeholder]", payload);
-    }
-
-    // Simulate a tiny round-trip so the success state feels intentional.
-    window.setTimeout(() => setStatus("success"), 350);
+    startTransition(async () => {
+      const result = await submitRsvp(data);
+      if (result.ok) {
+        setStatus("success");
+      } else {
+        setError(
+          result.error ??
+            "Something went wrong sending your RSVP. Please try again.",
+        );
+      }
+    });
   }
 
   return (
@@ -133,6 +111,21 @@ export function RSVPSection({ config }: RSVPSectionProps) {
               noValidate
               className="flex flex-col gap-7"
             >
+              {error ? (
+                <div
+                  role="alert"
+                  className="rounded-xl px-4 py-3 text-sm"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in srgb, #b8975a 20%, var(--color-cream))",
+                    border: "1px solid color-mix(in srgb, #b8975a 60%, transparent)",
+                    color: "var(--color-charcoal)",
+                  }}
+                >
+                  {error}
+                </div>
+              ) : null}
+
               <Field id="fullName" label="Full name" required>
                 <input
                   id="fullName"
@@ -212,9 +205,9 @@ export function RSVPSection({ config }: RSVPSectionProps) {
                   type="submit"
                   variant="primary"
                   size="md"
-                  disabled={status === "submitting"}
+                  disabled={isPending}
                 >
-                  {status === "submitting" ? "Sending…" : "Send RSVP"}
+                  {isPending ? "Sending…" : "Send RSVP"}
                 </Button>
               </div>
             </form>
