@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, type FormEvent } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { submitRsvp } from "@/app/actions/rsvp";
 import {
   lookupGuestByToken,
+  searchGuestsByName,
   type PublicGuest,
 } from "@/app/actions/guest";
 import type { RsvpStatus } from "@/lib/rsvpStatus";
@@ -77,13 +78,19 @@ export function RSVPSection({
   const guestToken = searchParams.get("guest");
   const [guest, setGuest] = useState<PublicGuest | null>(null);
   const [tokenWarning, setTokenWarning] = useState<string | null>(null);
+  // Tracks whether we've finished resolving the URL token. Without
+  // this, a valid `?guest=` link briefly renders the search card
+  // before the lookup completes — flicker-y.
+  const [lookupComplete, setLookupComplete] = useState<boolean>(!guestToken);
 
   useEffect(() => {
     if (!guestToken) {
       setGuest(null);
       setTokenWarning(null);
+      setLookupComplete(true);
       return;
     }
+    setLookupComplete(false);
     let cancelled = false;
     (async () => {
       const result = await lookupGuestByToken(guestToken);
@@ -94,12 +101,13 @@ export function RSVPSection({
       } else if (result.reason === "not-found") {
         setGuest(null);
         setTokenWarning(
-          "We couldn't match that invitation link. Please continue with the form below.",
+          "We couldn't match that invitation link. Please search for your name below.",
         );
       } else {
         setGuest(null);
         setTokenWarning(null);
       }
+      setLookupComplete(true);
     })();
     return () => {
       cancelled = true;
@@ -203,6 +211,18 @@ export function RSVPSection({
               weddingDate={weddingDate}
               timezone={timezone}
             />
+          ) : !guest && lookupComplete ? (
+            <GuestSearchCard
+              displayName={couple.displayName}
+              tokenWarning={tokenWarning}
+            />
+          ) : !guest ? (
+            <p
+              className="text-center text-sm italic"
+              style={{ color: "var(--color-sage-dark)" }}
+            >
+              Loading your invitation…
+            </p>
           ) : (
             <form
               onSubmit={handleSubmit}
@@ -806,6 +826,223 @@ function SuccessCard({
       >
         With love
       </p>
+    </div>
+  );
+}
+
+interface GuestSearchCardProps {
+  displayName: string;
+  /** Optional warning shown when the URL had a token that didn't match. */
+  tokenWarning: string | null;
+}
+
+/**
+ * Recovery card shown when the visitor lands on the page without a
+ * recognised personalised invitation link. Searches the `guests` table
+ * by name (case-insensitive partial match), then redirects them to
+ * `/?guest=<their-token>` on a single match — the existing RSVP flow
+ * + invitation popup take over from there.
+ *
+ * Multiple matches render as a list to disambiguate (rare for a 70-
+ * person guest list but happens for shared first names). Zero matches
+ * point them at the couple to confirm.
+ */
+function GuestSearchCard({
+  displayName,
+  tokenWarning,
+}: GuestSearchCardProps) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [isSearching, startSearch] = useTransition();
+  const [matches, setMatches] = useState<PublicGuest[] | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setSearchError("Please enter at least two letters of your name.");
+      setMatches(null);
+      return;
+    }
+    setSearchError(null);
+    startSearch(async () => {
+      const result = await searchGuestsByName(trimmed);
+      if (!result.ok) {
+        setSearchError(
+          result.reason === "not-configured"
+            ? "Guest list isn't available right now. Please reach out to the couple."
+            : "Something went wrong. Please try again.",
+        );
+        setMatches(null);
+        return;
+      }
+      if (result.matches.length === 1) {
+        // Single match → straight into the personalised page. The URL
+        // change re-runs the lookup effect above and the invitation
+        // popup mounts from `app/page.tsx` for the same token.
+        router.push(`/?guest=${result.matches[0].token}#rsvp`);
+        return;
+      }
+      setMatches(result.matches);
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <span
+          className="flex size-14 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: "var(--color-sage-dark)",
+            color: "var(--color-cream)",
+          }}
+          aria-hidden
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-6"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </span>
+
+        <h3
+          className="font-serif text-2xl sm:text-3xl"
+          style={{ color: "var(--color-charcoal)" }}
+        >
+          Find your invitation
+        </h3>
+
+        <p
+          className="max-w-md text-sm leading-relaxed"
+          style={{ color: "var(--color-sage-dark)" }}
+        >
+          RSVPs are for invited guests. Type your name below to find
+          your personalised link.
+        </p>
+      </div>
+
+      {tokenWarning ? (
+        <div
+          role="status"
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--color-gold) 18%, var(--color-cream))",
+            border:
+              "1px solid color-mix(in srgb, var(--color-gold) 55%, transparent)",
+            color: "var(--color-charcoal)",
+          }}
+        >
+          {tokenWarning}
+        </div>
+      ) : null}
+
+      <form
+        onSubmit={handleSearch}
+        noValidate
+        className="flex flex-col gap-3 sm:flex-row sm:items-stretch"
+      >
+        <label htmlFor="guest-search" className="sr-only">
+          Your name
+        </label>
+        <input
+          id="guest-search"
+          name="guest-search"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Your name"
+          autoComplete="name"
+          className={cn(INPUT_CLASS, "sm:flex-1")}
+          style={INPUT_STYLE}
+          enterKeyHint="search"
+        />
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          disabled={isSearching}
+        >
+          {isSearching ? "Searching…" : "Find"}
+        </Button>
+      </form>
+
+      {searchError ? (
+        <div
+          role="alert"
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, #b8975a 20%, var(--color-cream))",
+            border:
+              "1px solid color-mix(in srgb, #b8975a 60%, transparent)",
+            color: "var(--color-charcoal)",
+          }}
+        >
+          {searchError}
+        </div>
+      ) : null}
+
+      {matches !== null && matches.length === 0 ? (
+        <p
+          className="rounded-xl px-4 py-4 text-center text-sm leading-relaxed"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--color-sage) 18%, var(--color-cream))",
+            border:
+              "1px solid color-mix(in srgb, var(--color-sage) 55%, transparent)",
+            color: "var(--color-charcoal)",
+          }}
+        >
+          {`We couldn't find a matching invitation. Please reach out to ${displayName} so they can confirm or share your link.`}
+        </p>
+      ) : null}
+
+      {matches !== null && matches.length > 1 ? (
+        <div className="flex flex-col gap-3">
+          <p
+            className="text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+            style={{ color: "var(--color-sage-dark)" }}
+          >
+            Select your invitation
+          </p>
+          <ul className="flex flex-col gap-2">
+            {matches.map((match) => (
+              <li key={match.token}>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/?guest=${match.token}#rsvp`)}
+                  className="flex w-full items-center justify-between gap-4 rounded-xl px-4 py-3 text-left text-sm transition hover:bg-[color:var(--color-sage-dark)] hover:text-[color:var(--color-cream)]"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in srgb, var(--color-cream) 60%, var(--color-sage) 8%)",
+                    border:
+                      "1px solid color-mix(in srgb, var(--color-sage) 50%, transparent)",
+                    color: "var(--color-charcoal)",
+                  }}
+                >
+                  <span className="font-medium">{match.fullName}</span>
+                  <span
+                    aria-hidden
+                    className="text-xs uppercase tracking-[0.32em] opacity-70"
+                  >
+                    Open
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
