@@ -4,20 +4,18 @@ interface LeafSprigProps {
   className?: string;
   /** Stroke + leaf-fill colour. Defaults to sage-dark. */
   color?: string;
-  /** Drop the dot for a clean centered branch. */
+  /** Drop the centre dot for a clean leaves-only branch. */
   hideDot?: boolean;
-  /** Mirror horizontally. */
+  /** Mirror horizontally (cosmetic — the sprig is already symmetric). */
   flip?: boolean;
 }
 
 /**
- * Botanical sprig — horizontal undulating branch with paired leaves and
- * a small dot accent on the left. Pure SVG so it scales with the
- * surrounding text and inherits no layout cost.
- *
- * Used in the hero between the eyebrow and heading. Other sections
- * intentionally do not render an ornament — the hero is the single
- * decorative moment in the layout.
+ * Botanical sprig — a straight stem with four mirrored leaf pairs and
+ * a small centre dot. Symmetric across both vertical and horizontal
+ * axes, drawn with thin sage strokes and a gentle leaf fill plus a
+ * delicate midline vein per leaf for the editorial feel of a hand-
+ * drawn laurel.
  */
 export function LeafSprig({
   className,
@@ -40,23 +38,102 @@ export function LeafSprig({
         strokeLinejoin="round"
         fill="none"
       >
-        {!hideDot ? <circle cx="6" cy="18" r="1.6" fill={color} /> : null}
+        {/* Straight horizontal stem */}
+        <path d="M14 18 H 146" />
 
-        {/* Main stem — gentle S-curve. */}
-        <path d="M16 18 C 40 8, 70 6, 92 10 C 110 13, 132 14, 154 18" />
+        {!hideDot ? <circle cx="80" cy="18" r="1.6" fill={color} /> : null}
 
-        {/* Upper-side leaves */}
-        <path d="M30 14 Q 33 6, 42 8 Q 38 14, 30 14 Z" fill={color} fillOpacity="0.18" />
-        <path d="M52 10 Q 56 2, 65 5 Q 60 12, 52 10 Z" fill={color} fillOpacity="0.18" />
-        <path d="M76 9 Q 80 1, 90 4 Q 84 11, 76 9 Z" fill={color} fillOpacity="0.18" />
-        <path d="M100 12 Q 104 4, 114 7 Q 108 14, 100 12 Z" fill={color} fillOpacity="0.18" />
-        <path d="M124 14 Q 130 6, 140 10 Q 132 17, 124 14 Z" fill={color} fillOpacity="0.18" />
+        {/* === LEFT HALF — 4 leaves pointing up- and down-left === */}
+        {/* Outer-left, upper */}
+        <path
+          d="M30 18 Q 23 10, 18 6 Q 25 13, 30 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M30 18 L 21 8"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Outer-left, lower */}
+        <path
+          d="M30 18 Q 23 26, 18 30 Q 25 23, 30 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M30 18 L 21 28"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Inner-left, upper */}
+        <path
+          d="M55 18 Q 48 11, 42 7 Q 50 14, 55 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M55 18 L 45 9"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Inner-left, lower */}
+        <path
+          d="M55 18 Q 48 25, 42 29 Q 50 22, 55 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M55 18 L 45 27"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
 
-        {/* Lower-side leaves */}
-        <path d="M40 22 Q 44 30, 51 27 Q 47 21, 40 22 Z" fill={color} fillOpacity="0.18" />
-        <path d="M64 22 Q 68 30, 75 27 Q 71 21, 64 22 Z" fill={color} fillOpacity="0.18" />
-        <path d="M88 22 Q 92 30, 100 27 Q 95 21, 88 22 Z" fill={color} fillOpacity="0.18" />
-        <path d="M112 23 Q 117 30, 124 27 Q 119 22, 112 23 Z" fill={color} fillOpacity="0.18" />
+        {/* === RIGHT HALF — mirrored === */}
+        {/* Inner-right, upper */}
+        <path
+          d="M105 18 Q 112 11, 118 7 Q 110 14, 105 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M105 18 L 115 9"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Inner-right, lower */}
+        <path
+          d="M105 18 Q 112 25, 118 29 Q 110 22, 105 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M105 18 L 115 27"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Outer-right, upper */}
+        <path
+          d="M130 18 Q 137 10, 142 6 Q 135 13, 130 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M130 18 L 139 8"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
+        {/* Outer-right, lower */}
+        <path
+          d="M130 18 Q 137 26, 142 30 Q 135 23, 130 18 Z"
+          fill={color}
+          fillOpacity="0.18"
+        />
+        <path
+          d="M130 18 L 139 28"
+          strokeWidth="0.55"
+          strokeOpacity="0.55"
+        />
       </g>
     </svg>
   );
