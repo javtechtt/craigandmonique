@@ -67,7 +67,14 @@ export function Header({ config }: HeaderProps) {
           <span className="hidden md:block" aria-hidden />
         )}
 
-        <MobileNav brand={couple.displayName} items={navigation} />
+        <MobileNav
+          brand={couple.displayName}
+          monogram={{
+            left: couple.partnerOne.firstName.charAt(0),
+            right: couple.partnerTwo.firstName.charAt(0),
+          }}
+          items={navigation}
+        />
       </Container>
     </header>
   );

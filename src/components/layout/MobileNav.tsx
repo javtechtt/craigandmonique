@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
@@ -7,15 +8,19 @@ import type { WeddingNavItem } from "@/types/wedding";
 
 interface MobileNavProps {
   brand: string;
+  monogram: { left: string; right: string };
   items: WeddingNavItem[];
 }
+
+const BACKDROP_IMAGE = "/images/gallery/RZ9_7128.jpg";
 
 /**
  * Mobile navigation — full-screen takeover rendered into `document.body`
  * via `createPortal` so it escapes any ancestor stacking context. The
- * overlay covers the viewport with a solid white background.
+ * overlay covers the viewport with a solid cream surface, layered with a
+ * softened wedding photograph and the brand's editorial accents.
  */
-export function MobileNav({ brand, items }: MobileNavProps) {
+export function MobileNav({ brand, monogram, items }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const titleId = useId();
@@ -55,25 +60,40 @@ export function MobileNav({ brand, items }: MobileNavProps) {
         animation: "hero-fade-in 0.25s ease-out both",
       }}
     >
-      {/* Brand decorative blooms — match the hero's soft ambiance. */}
-      <span
+      {/* Softened wedding photograph as the backdrop. The cream section
+          fill underneath guarantees the surface is opaque even before
+          the image loads. */}
+      <Image
+        src={BACKDROP_IMAGE}
+        alt=""
         aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 h-[28rem] w-[28rem] rounded-full blur-3xl"
-        style={{ backgroundColor: "#a7b5a0", opacity: 0.32 }}
+        fill
+        sizes="100vw"
+        priority={false}
+        className="pointer-events-none object-cover"
+        style={{ opacity: 0.35 }}
       />
+      {/* Cream wash above the image to keep menu copy crisp. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-24 h-[24rem] w-[24rem] rounded-full blur-3xl"
-        style={{ backgroundColor: "#b8975a", opacity: 0.18 }}
+        className="pointer-events-none absolute inset-0"
+        style={{ backgroundColor: "rgba(245, 241, 234, 0.35)" }}
       />
 
       <header className="relative flex items-center justify-between px-6 py-6">
         <span
           id={titleId}
-          className="font-serif text-xl tracking-tight"
+          className="inline-flex items-center font-serif text-2xl leading-none tracking-tight"
           style={{ color: "#2e2e2c" }}
         >
-          {brand}
+          <span className="leading-none">{monogram.left}</span>
+          <span
+            className="mx-0.5 leading-none"
+            style={{ color: "#b8975a" }}
+          >
+            &
+          </span>
+          <span className="leading-none">{monogram.right}</span>
         </span>
         <button
           type="button"
@@ -108,7 +128,7 @@ export function MobileNav({ brand, items }: MobileNavProps) {
         />
       </div>
 
-      <ol className="relative flex flex-1 flex-col items-center justify-center gap-7 px-6 pb-24">
+      <ol className="relative flex flex-1 flex-col items-center justify-center gap-7 px-6 pb-16">
         {items.map((item, index) => (
           <li
             key={item.href}
@@ -131,17 +151,6 @@ export function MobileNav({ brand, items }: MobileNavProps) {
           </li>
         ))}
       </ol>
-
-      <footer
-        className="relative flex justify-center px-6 pb-10 text-xs uppercase"
-        style={{
-          color: "#b8975a",
-          letterSpacing: "0.4em",
-          animation: `hero-fade-up 0.45s ${0.07 * items.length + 0.1}s ease-out both`,
-        }}
-      >
-        Tap a section to navigate
-      </footer>
     </section>
   ) : null;
 
