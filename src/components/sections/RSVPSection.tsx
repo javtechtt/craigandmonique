@@ -13,7 +13,6 @@ import {
   type PublicGuest,
 } from "@/app/actions/guest";
 import type { RsvpStatus } from "@/lib/rsvpStatus";
-import { formatShortDate } from "@/lib/formatDate";
 import { cn } from "@/lib/cn";
 
 interface RSVPSectionProps {
@@ -206,11 +205,7 @@ export function RSVPSection({
               displayName={couple.displayName}
             />
           ) : status === "success" ? (
-            <SuccessCard
-              displayName={couple.displayName}
-              weddingDate={weddingDate}
-              timezone={timezone}
-            />
+            <SuccessCard displayName={couple.displayName} />
           ) : !guest && lookupComplete ? (
             <GuestSearchCard
               displayName={couple.displayName}
@@ -770,15 +765,9 @@ function ClosedCard({ displayName, deadlineLabel }: ClosedCardProps) {
 
 interface SuccessCardProps {
   displayName: string;
-  weddingDate: string;
-  timezone: string;
 }
 
-function SuccessCard({
-  displayName,
-  weddingDate,
-  timezone,
-}: SuccessCardProps) {
+function SuccessCard({ displayName }: SuccessCardProps) {
   return (
     <div
       className="flex flex-col items-center gap-4 py-6 text-center"
@@ -817,7 +806,7 @@ function SuccessCard({
         className="max-w-md text-sm leading-relaxed sm:text-base"
         style={{ color: "var(--color-sage-dark)" }}
       >
-        {`We can't wait to celebrate with you. ${displayName} have your RSVP, and you'll receive a confirmation closer to ${formatShortDate(weddingDate, { timezone })}.`}
+        {`We can't wait to celebrate with you. ${displayName} have received your RSVP!`}
       </p>
 
       <p
