@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { WeddingConfig } from "@/types/wedding";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { MobileMenu } from "@/components/layout/MobileMenu";
 
 interface HeaderProps {
   config: WeddingConfig;
@@ -65,6 +66,16 @@ export function Header({ config }: HeaderProps) {
         ) : (
           <span className="hidden md:block" aria-hidden />
         )}
+
+        <MobileMenu
+          brand={couple.displayName}
+          items={navigation}
+          cta={
+            hero.ctaLabel && hero.ctaHref
+              ? { label: hero.ctaLabel, href: hero.ctaHref }
+              : undefined
+          }
+        />
       </Container>
     </header>
   );
