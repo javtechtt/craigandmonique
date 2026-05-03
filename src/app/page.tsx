@@ -10,6 +10,7 @@ import { ScheduleSection } from "@/components/sections/ScheduleSection";
 import { GallerySection } from "@/components/sections/GallerySection";
 import { RSVPSection } from "@/components/sections/RSVPSection";
 import { RegistrySection } from "@/components/sections/RegistrySection";
+import { InvitationPopup } from "@/components/ui/InvitationPopup";
 
 // Force a fresh render so the live RSVP deadline status (open /
 // ending-soon / closed) reflects the current time on each request.
@@ -46,9 +47,17 @@ export default function HomePage() {
   const publicConfig = toPublicConfig(config);
   const { sections, rsvp, registry } = config;
   const rsvpStatus = computeRsvpStatus(rsvp.deadline, config.timezone);
+  const invitationDateLabel = formatInvitationDate(
+    config.weddingDate,
+    config.timezone,
+  );
 
   return (
     <>
+      <InvitationPopup
+        coupleDisplayName={config.couple.displayName}
+        weddingDateLabel={invitationDateLabel}
+      />
       <Header config={publicConfig} />
 
       <main className="flex flex-col">
@@ -74,6 +83,46 @@ export default function HomePage() {
       <Footer config={publicConfig} />
     </>
   );
+}
+
+/**
+ * Format the wedding date for the invitation popup as "Month Dth, YYYY"
+ * (e.g. "August 2nd, 2026"). Uses the wedding timezone so the day lands
+ * on the correct calendar date for any visitor.
+ */
+function formatInvitationDate(iso: string, timezone: string): string {
+  const date = new Date(iso);
+  const month = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    timeZone: timezone,
+  }).format(date);
+  const day = Number(
+    new Intl.DateTimeFormat("en-US", {
+      day: "numeric",
+      timeZone: timezone,
+    }).format(date),
+  );
+  const year = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    timeZone: timezone,
+  }).format(date);
+  const suffix = ordinalSuffix(day);
+  return `${month} ${day}${suffix}, ${year}`;
+}
+
+function ordinalSuffix(day: number): string {
+  const mod100 = day % 100;
+  if (mod100 >= 11 && mod100 <= 13) return "th";
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
 }
 
 /**

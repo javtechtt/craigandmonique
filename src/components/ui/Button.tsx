@@ -16,7 +16,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[color:var(--color-sage-dark)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-charcoal)] focus-visible:ring-[color:var(--color-sage-dark)]",
+    "bg-[color:var(--color-sage-dark)] text-[color:var(--color-cream)] hover:bg-[color:var(--color-gold)] focus-visible:ring-[color:var(--color-gold)]",
   secondary:
     "border border-[color:var(--color-sage-dark)] text-[color:var(--color-sage-dark)] hover:bg-[color:var(--color-sage-dark)] hover:text-[color:var(--color-cream)] focus-visible:ring-[color:var(--color-sage-dark)]",
   ghost:
