@@ -32,7 +32,7 @@ export function DesktopNav({ items }: DesktopNavProps) {
             : null;
         return el ? { item, el } : null;
       })
-      .filter((entry): entry is { item: WeddingNavItem; el: Element } =>
+      .filter((entry): entry is { item: WeddingNavItem; el: HTMLElement } =>
         entry !== null,
       );
 
