@@ -27,9 +27,23 @@ export interface RsvpRow {
   guest_count: number;
   meal_preference: string | null;
   message: string | null;
+  /** Personalised invite token this RSVP was filed under, if any. */
+  guest_token?: string | null;
+}
+
+export interface GuestRow {
+  id?: number;
+  created_at?: string;
+  wedding_slug: string;
+  token: string;
+  full_name: string;
+  party_size: number;
+  responded: boolean;
+  responded_at?: string | null;
 }
 
 export const RSVP_TABLE = "rsvps";
+export const GUESTS_TABLE = "guests";
 
 let cachedClient: SupabaseClient | null = null;
 

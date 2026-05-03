@@ -14,6 +14,7 @@ const CSV_COLUMNS: Array<{ key: keyof RsvpRow; header: string }> = [
   { key: "attending", header: "Attending" },
   { key: "guest_count", header: "Guests" },
   { key: "meal_preference", header: "Meal" },
+  { key: "guest_token", header: "Invite token" },
   { key: "message", header: "Message" },
 ];
 

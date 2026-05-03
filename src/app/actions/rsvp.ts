@@ -5,6 +5,7 @@ import { weddingConfig } from "@/data/wedding.config";
 import { computeRsvpStatus } from "@/lib/rsvpStatus";
 import {
   getSupabase,
+  GUESTS_TABLE,
   isSupabaseConfigured,
   RSVP_TABLE,
   type RsvpRow,
@@ -18,11 +19,21 @@ export interface RsvpActionResult {
 const MAX_NAME = 200;
 const MAX_CONTACT = 200;
 const MAX_MESSAGE = 2000;
+const MAX_PARTY_EXTRAS = 9; // primary + up to 9 plus-ones
 
 /**
  * Server Action: validate and persist an RSVP. Called from the
  * `RSVPSection` form. Returns a serializable result so the client
  * can render success/error inline.
+ *
+ * Multi-person submissions:
+ *   - The form posts the primary's fields under fullName / contact /
+ *     mealPreference / message
+ *   - For each plus-one (driven by the invitation's party_size) the
+ *     form posts plusName_1 / plusMeal_1, plusName_2 / plusMeal_2, …
+ *   - We file one rsvp row per person whose name is filled in. The
+ *     primary's `contact` and `message` are echoed onto each row so
+ *     follow-up emails can reach the whole invite via one address.
  *
  * Reachable as a POST endpoint by anyone who knows the action ID, so
  * every input is validated and bounded. No rate limiting yet — note
@@ -31,10 +42,7 @@ const MAX_MESSAGE = 2000;
 export async function submitRsvp(
   formData: FormData,
 ): Promise<RsvpActionResult> {
-  // 1. Server-side deadline guard. The client also locks the form
-  //    behind a closed-state card once the deadline passes, but a
-  //    stale tab or direct POST could still try to submit — so we
-  //    re-check the live deadline status here.
+  // 1. Server-side deadline guard.
   const status = computeRsvpStatus(
     weddingConfig.rsvp.deadline,
     weddingConfig.timezone,
@@ -47,13 +55,14 @@ export async function submitRsvp(
     };
   }
 
-  // 2. Coerce + trim inputs from FormData
+  // 2. Coerce + trim primary inputs
   const fullName = String(formData.get("fullName") ?? "").trim();
   const contact = String(formData.get("contact") ?? "").trim();
-  const mealPreference = String(formData.get("mealPreference") ?? "").trim();
+  const primaryMeal = String(formData.get("mealPreference") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
+  const guestToken = sanitiseToken(String(formData.get("guestToken") ?? ""));
 
-  // 3. Validate
+  // 3. Validate primary
   if (!fullName) {
     return { ok: false, error: "Please enter your full name." };
   }
@@ -70,28 +79,58 @@ export async function submitRsvp(
     return { ok: false, error: "Message is too long." };
   }
 
-  // Meal preference must be one of the configured options. Falls back
-  // to the first option if the client somehow sent something else.
-  const allowed = weddingConfig.rsvp.mealOptions ?? [];
-  const meal = allowed.includes(mealPreference)
-    ? mealPreference
-    : (allowed[0] ?? null);
-
-  const row: RsvpRow = {
-    wedding_slug: weddingConfig.slug,
-    full_name: fullName,
-    contact,
-    attending: true, // single-pill UX, always true at submit time
-    guest_count: 1, // each guest registers separately
-    meal_preference: meal,
-    message: message || null,
+  const allowedMeals = weddingConfig.rsvp.mealOptions ?? [];
+  const pickMeal = (raw: string): string | null => {
+    const trimmed = raw.trim();
+    return allowedMeals.includes(trimmed)
+      ? trimmed
+      : (allowedMeals[0] ?? null);
   };
 
-  // 3. Persist to Supabase if configured
+  // 4. Build the row list. Primary first, then any plus-one whose
+  //    name was filled in.
+  const rows: RsvpRow[] = [
+    {
+      wedding_slug: weddingConfig.slug,
+      full_name: fullName,
+      contact,
+      attending: true,
+      guest_count: 1,
+      meal_preference: pickMeal(primaryMeal),
+      message: message || null,
+      guest_token: guestToken || null,
+    },
+  ];
+
+  for (let i = 1; i <= MAX_PARTY_EXTRAS; i += 1) {
+    const plusName = String(formData.get(`plusName_${i}`) ?? "").trim();
+    if (!plusName) continue;
+    if (plusName.length > MAX_NAME) {
+      return {
+        ok: false,
+        error: `Plus-one #${i} name is too long.`,
+      };
+    }
+    const plusMeal = String(formData.get(`plusMeal_${i}`) ?? "").trim();
+    rows.push({
+      wedding_slug: weddingConfig.slug,
+      full_name: plusName,
+      // Plus-ones share the primary's contact and message — there's
+      // no separate field for them on the form.
+      contact,
+      attending: true,
+      guest_count: 1,
+      meal_preference: pickMeal(plusMeal),
+      message: message ? `(via ${fullName}) ${message}` : null,
+      guest_token: guestToken || null,
+    });
+  }
+
+  // 5. Persist to Supabase
   if (isSupabaseConfigured()) {
     try {
       const supabase = getSupabase();
-      const { error } = await supabase.from(RSVP_TABLE).insert(row);
+      const { error } = await supabase.from(RSVP_TABLE).insert(rows);
       if (error) {
         console.error("[rsvp] supabase insert failed:", error.message);
         return {
@@ -99,6 +138,25 @@ export async function submitRsvp(
           error:
             "We couldn't save your response. Please try again, or message Craig directly.",
         };
+      }
+
+      // Mark the invite as responded so the admin "pending" view shrinks.
+      if (guestToken) {
+        const { error: guestUpdateError } = await supabase
+          .from(GUESTS_TABLE)
+          .update({
+            responded: true,
+            responded_at: new Date().toISOString(),
+          })
+          .eq("wedding_slug", weddingConfig.slug)
+          .eq("token", guestToken);
+        if (guestUpdateError) {
+          // Not fatal — the rsvps already landed. Log and move on.
+          console.error(
+            "[rsvp] failed to mark guest responded:",
+            guestUpdateError.message,
+          );
+        }
       }
     } catch (err) {
       console.error("[rsvp] supabase threw:", err);
@@ -109,38 +167,50 @@ export async function submitRsvp(
     }
   }
 
-  // 4. Notify the couple by email if Resend is configured
+  // 6. Notify the couple by email if Resend is configured
   if (process.env.RESEND_API_KEY && process.env.COUPLE_EMAIL) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const fromAddress =
         process.env.RESEND_FROM_EMAIL ?? "RSVPs <onboarding@resend.dev>";
+      const partyLines = rows.map(
+        (row, idx) =>
+          `${idx === 0 ? "Primary" : `Plus-${idx}`}: ${row.full_name}` +
+          (row.meal_preference ? ` — ${row.meal_preference}` : ""),
+      );
       await resend.emails.send({
         from: fromAddress,
         to: process.env.COUPLE_EMAIL,
-        subject: `New RSVP — ${fullName}`,
+        subject: `New RSVP — ${fullName}${rows.length > 1 ? ` (+${rows.length - 1})` : ""}`,
         text: [
           `New RSVP for ${weddingConfig.couple.displayName}.`,
           ``,
-          `Name:   ${fullName}`,
+          guestToken ? `Invite token: ${guestToken}` : `(no token — anonymous form)`,
           `Contact: ${contact}`,
-          `Meal:   ${meal ?? "(unspecified)"}`,
+          ``,
+          ...partyLines,
+          ``,
           `Message: ${message || "(none)"}`,
         ].join("\n"),
       });
     } catch (err) {
-      // Email failure should not block the user — they're already saved
-      // (or in dev, the action is succeeding regardless). Log only.
       console.error("[rsvp] resend send failed:", err);
     }
   }
 
-  // 5. Dev fallback when neither integration is set up
+  // 7. Dev fallback
   if (!isSupabaseConfigured() && !process.env.RESEND_API_KEY) {
     if (process.env.NODE_ENV !== "production") {
-      console.info("[rsvp dev] received:", row);
+      console.info("[rsvp dev] received:", rows);
     }
   }
 
   return { ok: true };
+}
+
+const TOKEN_PATTERN = /^[a-z0-9-]{1,120}$/;
+
+function sanitiseToken(raw: string): string {
+  const t = raw.toLowerCase().trim();
+  return TOKEN_PATTERN.test(t) ? t : "";
 }
