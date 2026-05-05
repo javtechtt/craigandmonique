@@ -11,6 +11,7 @@ import { ExportCsvButton } from "@/app/admin/ExportCsvButton";
 import { DeleteRsvpButton } from "@/app/admin/DeleteRsvpButton";
 import { AddRsvpForm } from "@/app/admin/AddRsvpForm";
 import { AddPendingGuestForm } from "@/app/admin/AddPendingGuestForm";
+import { DeleteGuestButton } from "@/app/admin/DeleteGuestButton";
 
 export const dynamic = "force-dynamic";
 
@@ -268,6 +269,7 @@ export default async function AdminPage() {
                   <th className="px-3 py-2">Guest</th>
                   <th className="px-3 py-2">Party size</th>
                   <th className="px-3 py-2">Personalised link</th>
+                  <th className="px-3 py-2 text-right">Manage</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -279,6 +281,14 @@ export default async function AdminPage() {
                     <td className="px-3 py-2">{guest.party_size}</td>
                     <td className="px-3 py-2 text-neutral-700">
                       <code className="break-all">?guest={guest.token}</code>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {typeof guest.id === "number" ? (
+                        <DeleteGuestButton
+                          id={guest.id}
+                          fullName={guest.full_name}
+                        />
+                      ) : null}
                     </td>
                   </tr>
                 ))}

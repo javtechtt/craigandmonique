@@ -224,3 +224,65 @@ export async function addPendingGuest(
     return { ok: false, error: "Something went wrong." };
   }
 }
+
+/**
+ * Delete an invitation from the `guests` table by id. Any RSVP rows
+ * already filed under that guest's token are left untouched — they
+ * stay visible in "All responses" with the now-orphaned token, and
+ * the admin can clean them up individually with `deleteRsvp` if they
+ * want to. Guests who have already responded are blocked from this
+ * path (the Pending invitations table only renders unresponded rows
+ * anyway), so admins must remove the RSVPs first if they need to
+ * fully revoke an invite.
+ */
+export async function deletePendingGuest(
+  id: number,
+): Promise<AdminActionResult> {
+  if (!Number.isFinite(id) || id <= 0) {
+    return { ok: false, error: "Invalid guest id." };
+  }
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
+
+  try {
+    const supabase = getSupabase();
+
+    const { data: row, error: fetchError } = await supabase
+      .from(GUESTS_TABLE)
+      .select("id, responded")
+      .eq("wedding_slug", weddingConfig.slug)
+      .eq("id", id)
+      .maybeSingle();
+    if (fetchError) {
+      console.error("[admin] guest delete fetch failed:", fetchError.message);
+      return { ok: false, error: "Couldn't read the invitation." };
+    }
+    if (!row) {
+      return { ok: false, error: "That invitation no longer exists." };
+    }
+    if ((row as { responded?: boolean }).responded) {
+      return {
+        ok: false,
+        error:
+          "This guest has already responded. Delete their RSVP first, then come back to remove the invitation.",
+      };
+    }
+
+    const { error: deleteError } = await supabase
+      .from(GUESTS_TABLE)
+      .delete()
+      .eq("wedding_slug", weddingConfig.slug)
+      .eq("id", id);
+    if (deleteError) {
+      console.error("[admin] guest delete failed:", deleteError.message);
+      return { ok: false, error: "Couldn't delete the invitation." };
+    }
+
+    revalidatePath("/admin");
+    return { ok: true };
+  } catch (err) {
+    console.error("[admin] guest delete threw:", err);
+    return { ok: false, error: "Something went wrong." };
+  }
+}
