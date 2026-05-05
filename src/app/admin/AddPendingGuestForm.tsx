@@ -46,7 +46,7 @@ export function AddPendingGuestForm() {
     return (
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-neutral-500">
-          Forgot to seed someone? Add a new invitation here — the token
+          Forgot to add someone? Add a new invitation here — the token
           is generated from the name automatically.
         </p>
         <button
