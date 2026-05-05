@@ -10,6 +10,7 @@ import { weddingConfig } from "@/data/wedding.config";
 import { ExportCsvButton } from "@/app/admin/ExportCsvButton";
 import { DeleteRsvpButton } from "@/app/admin/DeleteRsvpButton";
 import { AddRsvpForm } from "@/app/admin/AddRsvpForm";
+import { AddPendingGuestForm } from "@/app/admin/AddPendingGuestForm";
 
 export const dynamic = "force-dynamic";
 
@@ -239,22 +240,28 @@ export default async function AdminPage() {
 
       <section className="mt-10">
         <h2 className="font-serif text-xl">Pending invitations</h2>
+
+        <div className="mt-3">
+          <AddPendingGuestForm />
+        </div>
+
         {guestsErrored ? (
           <p className="mt-3 text-amber-700">
             Couldn&apos;t load the guest list ({guestRes.error?.message}).
             Confirm the <code>guests</code> table exists.
           </p>
         ) : guests.length === 0 ? (
-          <p className="mt-3 text-neutral-500">
+          <p className="mt-4 text-neutral-500">
             No invitations seeded yet. Run{" "}
-            <code>supabase/seed-guests.sql</code> to load the list.
+            <code>supabase/seed-guests.sql</code> to load the list, or
+            add one above.
           </p>
         ) : pendingInvitations.length === 0 ? (
-          <p className="mt-3 text-neutral-500">
+          <p className="mt-4 text-neutral-500">
             Every invitation has responded. 🎉
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-lg border border-neutral-200">
+          <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200">
             <table className="w-full border-collapse text-left">
               <thead className="bg-neutral-50 text-xs uppercase tracking-wider text-neutral-500">
                 <tr>

@@ -8,6 +8,7 @@ import {
   isSupabaseConfigured,
   RSVP_TABLE,
 } from "@/lib/rsvpServer";
+import { slugifyName } from "@/lib/slug";
 
 /**
  * Admin-only mutations for the RSVP dashboard. These actions live under
@@ -20,6 +21,11 @@ import {
 export interface AdminActionResult {
   ok: boolean;
   error?: string;
+}
+
+export interface AddPendingGuestResult extends AdminActionResult {
+  /** The slugified token assigned to the new guest, returned on success. */
+  token?: string;
 }
 
 const TOKEN_PATTERN = /^[a-z0-9-]{1,120}$/;
@@ -150,6 +156,71 @@ export async function addRsvpManually(
     return { ok: true };
   } catch (err) {
     console.error("[admin] insert threw:", err);
+    return { ok: false, error: "Something went wrong." };
+  }
+}
+
+/**
+ * Add a brand-new invitation to the `guests` table. The token is
+ * derived from the supplied name via `slugifyName`; uniqueness is
+ * enforced at the DB level (the column is `unique`), so adding a
+ * second guest with the same slugified name returns a friendly error
+ * rather than failing opaquely.
+ */
+export async function addPendingGuest(
+  formData: FormData,
+): Promise<AddPendingGuestResult> {
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  const partySizeRaw = String(formData.get("partySize") ?? "1").trim();
+  const partySize = Number.parseInt(partySizeRaw, 10);
+
+  if (!fullName) return { ok: false, error: "Name is required." };
+  if (fullName.length > 200) return { ok: false, error: "Name is too long." };
+  if (!Number.isFinite(partySize) || partySize < 1 || partySize > 10) {
+    return { ok: false, error: "Party size must be between 1 and 10." };
+  }
+
+  const token = slugifyName(fullName);
+  if (!TOKEN_PATTERN.test(token)) {
+    return {
+      ok: false,
+      error:
+        "Couldn't generate a usable token from that name. Please use letters, numbers, spaces or hyphens.",
+    };
+  }
+
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
+
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase.from(GUESTS_TABLE).insert({
+      wedding_slug: weddingConfig.slug,
+      token,
+      full_name: fullName,
+      party_size: partySize,
+      responded: false,
+    });
+    if (error) {
+      // Postgres unique-constraint violation surfaces as code "23505".
+      const isDuplicate =
+        (error as { code?: string }).code === "23505" ||
+        /duplicate|unique/i.test(error.message);
+      if (isDuplicate) {
+        return {
+          ok: false,
+          error: `An invitation with the token "${token}" already exists. Use a more specific name (e.g. include a middle initial) and try again.`,
+        };
+      }
+      console.error("[admin] guest insert failed:", error.message);
+      return { ok: false, error: "Couldn't save the invitation." };
+    }
+
+    revalidatePath("/admin");
+    return { ok: true, token };
+  } catch (err) {
+    console.error("[admin] guest insert threw:", err);
     return { ok: false, error: "Something went wrong." };
   }
 }
